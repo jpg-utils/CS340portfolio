@@ -1,0 +1,48 @@
+{{!--Joshua Griep, Sam Bleyl, CS340, adopted from the react portion the course material--}}
+
+<h1>Orders</h1>
+
+{{! READ table }}
+<table>
+    <thead>
+        {{! For the table header row, we print the DB attribute names }}
+        <tr>
+            {{#each orders.[0]}}
+            <th>
+                {{@key}}
+            </th>
+            {{/each}}
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{! For each row, print the id, fname, lname, homeworld and age }}
+        {{#each orders}}
+        <tr>
+            <td>{{this.id}}</td>
+            <td>{{this.customerFirst}}</td>
+            <td>{{this.customerLast}}</td>
+            <td>{{this.employee}}</td>
+            <td>{{this.branch}}</td>
+            <td>{{this.estimate}}</td>
+            <td>{{this.status}}</td>
+            <td>{{this.subtotal}}</td>
+            <td>{{this.tax}}</td>
+            <td>{{this.total}}</td>
+
+ {{! DELETE form }}
+            <form id='delete_person_form'>
+                <input type='hidden' name='delete_person_id' value='{{this.id}}' />
+                <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
+                <td>
+                    <button type='submit'>
+                        Delete
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+

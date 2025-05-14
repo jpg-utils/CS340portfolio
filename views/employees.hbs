@@ -20,12 +20,27 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each employees}}
         <tr>
+<<<<<<< HEAD
             <td>{{this.first}}</td>
             <td>{{this.last}}</td>
             <td>{{this.role}}</td>
             <td>{{this.active}}</td>
             <td>{{this.phone}}</td>
             <td>{{this.branch}}</td>
+=======
+            <td>{{this.id}}</td>
+            <td>{{this.first}}</td>
+            <td>{{this.last}}</td>
+            <td>{{this.phone}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.address}}</td>
+            <td>{{this.city}}</td>
+            <td>{{this.state}}</td>
+            <td>{{this.locationID}}</td>
+            <td>{{this.fulfilled}}</td>
+            <td>{{this.active}}</td>
+            <td>{{this.role}}</td>
+>>>>>>> 185142f (Initial commit on sbleyl branch)
 
  {{! DELETE form }}
             <form id='delete_person_form'>
@@ -40,5 +55,9 @@
         </tr>
         {{/each}}
     </tbody>
+<<<<<<< HEAD
 </table>
 
+=======
+</table>
+>>>>>>> 185142f (Initial commit on sbleyl branch)

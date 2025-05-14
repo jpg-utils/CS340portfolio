@@ -20,6 +20,7 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each orders}}
         <tr>
+<<<<<<< HEAD
             <td>{{this.id}}</td>
             <td>{{this.customerFirst}}</td>
             <td>{{this.customerLast}}</td>
@@ -30,6 +31,20 @@
             <td>{{this.subtotal}}</td>
             <td>{{this.tax}}</td>
             <td>{{this.total}}</td>
+=======
+            <td>{{this.orderID}}</td>
+            <td>{{this.customerID}}</td>
+            <td>{{this.employeeID}}</td>
+            <td>{{this.locationID}}</td>
+            <td>{{this.address}}</td>
+            <td>{{this.dateOrdered}}</td>
+            <td>{{this.dateEstimateDelivery}}</td>
+            <td>{{this.dateDelivered}}</td>
+            <td>{{this.orderStatus}}</td>
+            <td>{{this.subtotal}}</td>
+            <td>{{this.tax}}</td>
+            <td>{{this.orderTotal}}</td>
+>>>>>>> 185142f (Initial commit on sbleyl branch)
 
  {{! DELETE form }}
             <form id='delete_person_form'>

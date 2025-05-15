@@ -1,13 +1,13 @@
 {{!--Joshua Griep, Sam Bleyl, CS340, adopted from the react portion the course material--}}
 
-<h1>Order Dtails</h1>
+<h1>Order Details</h1>
 
 {{! READ table }}
 <table>
     <thead>
         {{! For the table header row, we print the DB attribute names }}
         <tr>
-            {{#each orders.[0]}}
+            {{#each invoice.[0]}}
             <th>
                 {{@key}}
             </th>
@@ -20,6 +20,7 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each invoice}}
         <tr>
+            <td>{{this.ID}}</td>
             <td>{{this.productName}}</td>
             <td>{{this.quantity}}</td>
             <td>{{this.indprice}}</td>
@@ -40,4 +41,3 @@
         {{/each}}
     </tbody>
 </table>
-

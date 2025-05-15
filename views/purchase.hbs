@@ -1,0 +1,47 @@
+<h1>Place an Order Today!</h1>
+
+<form class='cuForm' id='new_purchase_form'>
+    <label for='new_purchase_customer'>Which of our loyal customers is making this sale?: </label>
+    <select name='new_purchase_customer' id='new_purchase_customer' required>
+        <option value='' disabled selected>Select a customer</option>
+        {{#each customers}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.first}}
+            {{this.last}}
+        </option>
+        {{/each}}
+    </select>
+    <br>
+    <br>
+    <label for='new_purchase_employee'>Which employee helped you the most? </label>
+    <select name='new_purchase_employee' id='new_purchase_employee' required>
+        <option value='' disabled selected>Select an Employee</option>
+        {{#each employees}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.first}}
+            {{this.last}}
+        </option>
+        {{/each}}
+    </select>
+    <br>
+    <br>
+    <label for='new_purchase_product'>What are you buying today? </label>
+    <select name='new_purchase_product' id='new_purchase_product' required>
+        <option value='' disabled selected>Select a Product</option>
+        {{#each products}}
+        <option value='{{this.id}}' required>
+            {{this.ID}}
+            -
+            {{this.name}}
+        </option>
+        {{/each}}
+    </select>
+    <label for='new_purchase_count'>Price: </label>
+    <input type='number' min="1" step="1" name='new_purchase_count' id='new_purchase_count' required/>
+<br><br>
+        <input type='submit' value="Let's make a deal!"/>
+</form>

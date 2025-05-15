@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-const PORT = 2992;
+const PORT = 2998;
 
 // Database for CRUD actions on the data
 const db = require('./database/db-connector.js');
@@ -90,6 +90,7 @@ app.get('/locations', async function (req, res) {
     try {
         // returns relevant attributes on locations
         const query1 = `SELECT  \
+        Locations.locationID as 'id', \
         Locations.locationName as 'branch', \
         Locations.locationAddress as 'address', \
         Locations.locationCity AS 'city', \
@@ -114,6 +115,7 @@ app.get('/employees', async function (req, res) {
     try {
         // returns relevant attributes on locations
         const query1 = `SELECT  \
+        Employees.employeeID as 'id', \
         Employees.firstName as 'first', \
         Employees.lastName as 'last', \
         Employees.employeeRole AS 'role', \
@@ -124,8 +126,11 @@ app.get('/employees', async function (req, res) {
         ORDER BY branch`;
         const [employees] = await db.query(query1);
 
+        const query2 =`SELECT * FROM Locations`;
+        const [locations] = await db.query(query2);
+
         // Render the employees Table inside of the employees.hbs file
-        res.render('employees', { employees: employees});
+        res.render('employees', { employees: employees, locations: locations});
     } catch (error) {
         console.error('Error executing queries:', error);
         // Send a generic error message to the browser
@@ -145,19 +150,39 @@ app.get('/orders', async function (req, res) {
         Customers.lastName as 'customerLast', \
         Employees.lastName as 'employee', \
         Locations.locationName AS 'branch', \
-        Orders.dateEstimateDelivery AS 'estimate', \
+        DATE_format(Orders.dateEstimateDelivery, "%m/%e/%y") AS 'estimate', \
         Orders.orderStatus AS 'status', \
         Orders.subtotal AS 'subtotal', \
         Orders.tax AS 'tax', \
-        Orders.orderTotal AS 'total' FROM ORDERS \
+        Orders.orderTotal AS 'total' FROM Orders \
         JOIN Locations ON Orders.locationID = Locations.locationID \
         JOIN Customers ON Customers.customerID = Orders.customerID \
         JOIN Employees ON Employees.employeeID = Orders.employeeID \
         ORDER BY estimate;`;
         const [orders] = await db.query(query1);
+        const query2 = `SELECT \
+            Customers.customerID AS 'id', \
+            Customers.firstName AS 'first', \
+            Customers.lastName AS 'last', \
+            Customers.phone AS 'phone', \
+            Customers.email AS 'email' FROM Customers;`
+        const [customers] = await db.query(query2);
+        const query3 = `SELECT \
+            Products.productID AS 'ID', \
+            Products.productName AS 'name', \
+            Products.productType AS 'type', \
+            Products.unitPrice AS 'price' \ 
+            FROM Products;`;
+        const [products] = await db.query(query3);;
+        const query4 = `SELECT  \
+            Employees.employeeID as 'id', \
+            Employees.firstName as 'first', \
+            Employees.lastName as 'last' \
+            FROM Employees;`;
+        const [employees] = await db.query(query4);
 
         // Render the Customer Table inside of the customer.hbs file
-        res.render('orders', { orders: orders});
+        res.render('orders', { orders: orders, customers:customers, products:products, employees:employees});
     } catch (error) {
         console.error('Error executing queries:', error);
         // Send a generic error message to the browser
@@ -167,24 +192,51 @@ app.get('/orders', async function (req, res) {
     }
 });
 
-//Products Ordered table -not yet implemented but the easiest way will be as a 'view button' from the order
-//select Product.productName, productsOrdered.quantity, productsOrdered.productprice as 'indprice', productsordered.totalproductprice as 'totalproduct'  
+
 //retrieve a list of orders- requires joins
-app.get('/orders/:id', async function (req, res) {
+app.get('/invoices', async function (req, res) {
     try {
         // returns relevant attributes on locations
         const query1 = `SELECT  \
+        ProductsOrdered.orderID as 'ID', \
+        Products.productName, \
+        ProductsOrdered.quantity, \
+        ProductsOrdered.productprice as 'indprice', \
+        ProductsOrdered.totalproductprice as 'totalproduct' \
+        FROM Products \
+        JOIN ProductsOrdered ON ProductsOrdered.productID = Products.productID;`;
+        const [invoice] = await db.query(query1);
+
+        // Render the Customer Table inside of the customer.hbs file
+        res.render('invoices', { invoice: invoice});
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
+        );
+    }
+});
+
+
+
+//retrieve a list of orders- requires joins
+app.get('/invoices/:id', async function (req, res) {
+    try {
+        // returns relevant attributes on locations
+        const query1 = `SELECT  \
+        ProductsOrdered.orderID as 'ID', \
         Products.productName, \
         ProductsOrdered.quantity, \
         ProductsOrdered.productprice as 'indprice', \
         ProductsOrdered.totalproductprice as 'totalproduct' \
         FROM Products \
         JOIN ProductsOrdered ON ProductsOrdered.productID = Products.productID \
-        WHERE ProductsOrdered.orderID = ${req.params.id};`;
+        WHERE ProductsOrdered.orderID = ${req.params['id']};`;
         const [invoice] = await db.query(query1);
 
         // Render the Customer Table inside of the customer.hbs file
-        res.render('invoice', { invoice: invoice});
+        res.render('invoices', { invoice: invoice});
     } catch (error) {
         console.error('Error executing queries:', error);
         // Send a generic error message to the browser
@@ -195,7 +247,32 @@ app.get('/orders/:id', async function (req, res) {
 });
 
 
-app.get('/locations/:id', async function (req, res) {
+app.get('/inventory', async function (req, res) {
+    try {
+        // returns relevant attributes on locations
+        const query1 = `SELECT  \
+        Locations.locationName as 'site', \
+        Products.productName as 'product' \
+        FROM ProductLocation \
+        JOIN Products ON ProductLocation.productID = Products.productID \
+        JOIN Locations ON ProductLocation.locationID = Locations.locationID`;
+        const [inventory] = await db.query(query1);
+
+        // Render the Customer Table inside of the customer.hbs file
+        res.render('inventory', { inventory: inventory});
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
+        );
+    }
+});
+
+
+
+
+app.get('/inventory/:id', async function (req, res) {
     try {
         // returns relevant attributes on locations
         const query1 = `SELECT  \
@@ -217,6 +294,44 @@ app.get('/locations/:id', async function (req, res) {
         );
     }
 });
+
+app.get('/purchase', async function (req, res) {
+    try {
+        // returns relevant attributes on locations
+        const query1 = `SELECT \
+            Customers.customerID AS 'id', \
+            Customers.firstName AS 'first', \
+            Customers.lastName AS 'last', \
+            Customers.phone AS 'phone', \
+            Customers.email AS 'email' FROM Customers;`
+        const [customers] = await db.query(query1);
+        const query2 = `SELECT \
+            Products.productID AS 'ID', \
+            Products.productName AS 'name', \
+            Products.productType AS 'type', \
+            Products.unitPrice AS 'price' \ 
+            FROM Products;`;
+        const [products] = await db.query(query2);;
+        const query3 = `SELECT  \
+            Employees.employeeID as 'id', \
+            Employees.firstName as 'first', \
+            Employees.lastName as 'last' \
+            FROM Employees;`;
+        const [employees] = await db.query(query3);
+
+        // Render the Customer Table inside of the customer.hbs file
+        res.render('purchase', { customers: customers, employees: employees, products:products});
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
+        );
+    }
+});
+
+
+
 
 
 // ########################################

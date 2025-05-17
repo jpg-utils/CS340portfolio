@@ -40,7 +40,46 @@
         {{/each}}
     </tbody>
 </table>
-<<<<<<< HEAD
 
-=======
->>>>>>> 185142f (Initial commit on sbleyl branch)
+{{! CREATE form }}
+<h2>New Customer</h2>
+<form class='cuForm' id='create_customer_form'>
+    <label for='create_customer_fname'>First Name: </label>
+    <input type='text' name='create_customer_fname' id='create_customer_fname' required />
+
+    <label for='create_customer_lname'>Last Name: </label>
+    <input type='text' name='create_customer_lname' id='create_customer_lname' required/>
+    
+    <label for='create_customer_email'>Email Address: </label>
+    <input type='email' name='create_customer_email' id='create_customer_email' required/>
+
+    <label for='create_customer_phone'>Phone: </label>
+    <input type='tel' name='create_customer_phone' id='create_customer_phone' pattern="[0-9]{10}" required/>
+
+    <input type='submit' value="Become a consumer today!" />
+</form>
+
+{{! UPDATE form }}
+<h2>Update a Customer</h2>
+<form class='cuForm' id='update_customer_form'>
+    <label for='update_customer_id'>Customer to Update: </label>
+    <select name='update_customer_id' id='update_customer_id' required>
+        <option value='' disabled selected>Select a Customer</option>
+        {{#each customers}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.first}}
+            {{this.last}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='create_customer_phone'>Phone: </label>
+    <input type='tel' name='create_customer_phone' id='create_customer_phone' pattern="[0-9]{10}"  required/>
+
+    <label for='update_customer_email'>Email: </label>
+    <input type='email' name='update_customer_email' id='update_customer_email'  required/>
+
+    <input type='submit' value="Update my info!"/>
+</form>

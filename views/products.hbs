@@ -1,10 +1,6 @@
 {{!--Joshua Griep, Sam Bleyl, CS340, adopted from the react portion the course material--}}
 
-<<<<<<< HEAD
-<h1>Customers</h1>
-=======
 <h1>Products</h1>
->>>>>>> 185142f (Initial commit on sbleyl branch)
 
 {{! READ table }}
 <table>
@@ -24,10 +20,6 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each products}}
         <tr>
-<<<<<<< HEAD
-=======
-            <td>{{this.id}}</td>
->>>>>>> 185142f (Initial commit on sbleyl branch)
             <td>{{this.name}}</td>
             <td>{{this.type}}</td>
             <td>{{this.price}}</td>
@@ -46,7 +38,42 @@
         {{/each}}
     </tbody>
 </table>
-<<<<<<< HEAD
 
-=======
->>>>>>> 185142f (Initial commit on sbleyl branch)
+{{! CREATE form }}
+<h2>New Inventory Item</h2>
+<form class='cuForm' id='create_product_form'>
+    <label for='create_customer_name'>Product Name: </label>
+    <input type='text' name='create_product_name' id='create_product_name' required />
+
+    <label for='create_product_type'>Product type: </label>
+    <input type='text' name='create_product_type' id='create_product_type' required/>
+    
+    <label for='create_product_price'>Price: </label>
+    <input type='number' min="1" step=".01" name='create_product_price' id='create_product_price' required/>
+
+    <input type='submit' value="Add to inventory list!" />
+</form>
+
+{{! UPDATE form }}
+<h2>Update a product</h2>
+<form class='cuForm' id='update_product_form'>
+    <label for='update_product_id'>Product to Update: </label>
+    <select name='update_product_id' id='update_product_id' required>
+        <option value='' disabled selected>Select a Product</option>
+        {{#each products}}
+        <option value='{{this.id}}' required>
+            {{this.ID}}
+            -
+            {{this.name}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='update_product_type'>Product type: </label>
+    <input type='text' name='update_product_type' id='update_product_type' required/>
+    
+    <label for='update_product_price'>Price: </label>
+    <input type='number' min="1" step=".01" name='update_product_price' id='update_product_price' required/>
+
+    <input type='submit' value="Update the product!"/>
+</form>

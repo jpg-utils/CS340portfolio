@@ -20,32 +20,18 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each employees}}
         <tr>
-<<<<<<< HEAD
+            <td>{{this.id}}</td>
             <td>{{this.first}}</td>
             <td>{{this.last}}</td>
             <td>{{this.role}}</td>
             <td>{{this.active}}</td>
             <td>{{this.phone}}</td>
             <td>{{this.branch}}</td>
-=======
-            <td>{{this.id}}</td>
-            <td>{{this.first}}</td>
-            <td>{{this.last}}</td>
-            <td>{{this.phone}}</td>
-            <td>{{this.email}}</td>
-            <td>{{this.address}}</td>
-            <td>{{this.city}}</td>
-            <td>{{this.state}}</td>
-            <td>{{this.locationID}}</td>
-            <td>{{this.fulfilled}}</td>
-            <td>{{this.active}}</td>
-            <td>{{this.role}}</td>
->>>>>>> 185142f (Initial commit on sbleyl branch)
 
  {{! DELETE form }}
-            <form id='delete_person_form'>
-                <input type='hidden' name='delete_person_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
+            <form id='delete_employee_form'>
+                <input type='hidden' name='delete_employee_id' value='{{this.id}}' />
+                <input type='hidden' name='delete_employee_name' value='{{this.first}} {{this.last}}' />
                 <td>
                     <button type='submit'>
                         Delete
@@ -55,9 +41,89 @@
         </tr>
         {{/each}}
     </tbody>
-<<<<<<< HEAD
 </table>
 
-=======
-</table>
->>>>>>> 185142f (Initial commit on sbleyl branch)
+{{! CREATE form }}
+<h2>New Employee</h2>
+<form class='cuForm' id='create_employee_form'>
+    <label for='create_employee_fname'>First Name: </label>
+    <input type='text' name='create_employee_fname' id='create_employee_fname' required />
+
+    <label for='create_employee_lname'>Last Name: </label>
+    <input type='text' name='create_employee_lname' id='create_employee_lname' required/>
+    
+    <label for='create_employee_email'>Email Address: </label>
+    <input type='email' name='create_employee_email' id='create_employee_email' required/>
+
+    <label for='create_employee_phone'>Phone: </label>
+    <input type='text' name='create_employee_phone' id='create_employee_phone' pattern="[0-9]{10}" required/>
+
+    <label for='create_employee_address'>Home Address: </label>
+    <input type='text' name='create_employee_address' id='create_employee_address' required/>
+    
+    <label for='create_employee_city'>City: </label>
+    <input type='text' name='create_employee_city' id='create_employee_city' required/>
+    
+    <label for='create_employee_state'>State: </label>
+    <input type='text' name='create_employee_state' id='create_employee_state' required/>
+
+    <label for='create_employee_role'>Job Title: </label>
+    <input type='text' name='create_employee_role' id='create_employee_role' required/>
+    
+    <label for='create_employee_site'>Works At: </label>
+    <select name='create_employee_site' id='create_employee_site'>
+        <option value='NULL' selected>Select a Store</option>
+        <option value='NULL'>&lt; None &gt;</option>
+        {{#each locations}}
+        <option value='{{this.locationID}}' required>{{this.locationName}}</option>
+        {{/each}}
+    </select>
+
+    <input type='submit' value="Welcome to the team!" />
+</form>
+
+{{! UPDATE form }}
+<h2>Update an Employee</h2>
+<form class='cuForm' id='update_employee_form'>
+    <label for='update_employee_id'>Employee to Update: </label>
+    <select name='update_employee_id' id='update_employee_id' required>
+        <option value='' disabled selected>Select an Employee</option>
+        {{#each employees}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.first}}
+            {{this.last}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='update_employee_email'>Email Address: </label>
+    <input type='email' name='update_employee_email' id='update_employee_email' required/>
+
+    <label for='update_employee_phone'>Phone: </label>
+    <input type='text' name='update_employee_phone' id='update_employee_phone' pattern="[0-9]{10}" required/>
+
+    <label for='update_employee_address'>Home Address: </label>
+    <input type='text' name='update_employee_address' id='update_employee_address' required/>
+    
+    <label for='update_employee_city'>City: </label>
+    <input type='text' name='update_employee_city' id='update_employee_city' required/>
+    
+    <label for='update_employee_state'>State: </label>
+    <input type='text' name='update_employee_state' id='update_employee_state' required/>
+
+    <label for='update_employee_role'>Job Title: </label>
+    <input type='text' name='update_employee_role' id='update_employee_role' required/>
+    
+    <label for='update_employee_site'>Works At: </label>
+    <select name='update_employee_site' id='update_employee_site'>
+        <option value='NULL' selected>Select a Store</option>
+        <option value='NULL'>&lt; None &gt;</option>
+        {{#each locations}}
+        <option value='{{this.locationID}}' required>{{this.locationName}}</option>
+        {{/each}}
+    </select>
+
+    <input type='submit' value="Update my info!"/>
+</form>

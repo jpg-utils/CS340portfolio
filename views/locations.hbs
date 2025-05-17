@@ -20,17 +20,13 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each locations}}
         <tr>
-<<<<<<< HEAD
-            <td>{{this.branch}}</td>
-=======
             <td>{{this.id}}</td>
-            <td>{{this.name}}</td>
->>>>>>> 185142f (Initial commit on sbleyl branch)
+            <td>{{this.branch}}</td>
             <td>{{this.address}}</td>
             <td>{{this.city}}</td>
             <td>{{this.state}}</td>
             <td>{{this.phone}}</td>
-
+            <td><a href="/inventory/{{this.id}}">View Inventory</a></td>
  {{! DELETE form }}
             <form id='delete_person_form'>
                 <input type='hidden' name='delete_location_id' value='{{this.id}}' />
@@ -44,9 +40,50 @@
         </tr>
         {{/each}}
     </tbody>
-<<<<<<< HEAD
 </table>
 
-=======
-</table>
->>>>>>> 185142f (Initial commit on sbleyl branch)
+{{! CREATE form }}
+<h2>New Site</h2>
+<form class='cuForm' id='create_employee_form'>
+    <label for='create_location_branch'>Branch Name: </label>
+    <input type='text' name='create_location_branch' id='create_location_branch'   required/>
+
+    <label for='create_location_address'>Address: </label>
+    <input type='text' name='create_location_address' id='create_location_address'   required/>
+
+    <label for='update_location_city'>City: </label>
+    <input type='text' name='update_location_city' id='update_location_city'  required/>
+
+    <label for='update_location_state'>State: </label>
+    <input type='text' name='update_location_state' id='update_location_state'  required/>
+
+    <input type='submit' value="Add location" />
+</form>
+
+{{! UPDATE form }}
+<h2>Update a Location</h2>
+<form class='cuForm' id='update_Location_form'>
+    <label for='update_Location_id'>Select a site: </label>
+    <select name='update_customer_id' id='update_customer_id' required>
+        <option value='' disabled selected>Select a Site</option>
+        {{#each locations}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.branch}}
+        </option>
+        {{/each}}
+    </select>
+
+    <label for='create_location_address'>Address: </label>
+    <input type='text' name='create_location_address' id='create_location_address'   required/>
+
+    <label for='update_location_city'>City: </label>
+    <input type='text' name='update_location_city' id='update_location_city'  required/>
+
+    <label for='update_location_state'>State: </label>
+    <input type='text' name='update_location_state' id='update_location_state'  required/>
+    
+    
+    <input type='submit' value="Update the site!"/>
+</form>

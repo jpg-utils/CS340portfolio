@@ -7,11 +7,15 @@
     <thead>
         {{! For the table header row, we print the DB attribute names }}
         <tr>
-            {{#each orders.[0]}}
-            <th>
-                {{@key}}
-            </th>
-            {{/each}}
+            <th>Order Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Helped by</th>
+            <th>Estimated delivery</th>
+            <th>Order Status</th>
+            <th>Subtotal</th>
+            <th>Tax</th>
+            <th>Total</th>
             <th></th>
         </tr>
     </thead>
@@ -20,33 +24,19 @@
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each orders}}
         <tr>
-<<<<<<< HEAD
             <td>{{this.id}}</td>
             <td>{{this.customerFirst}}</td>
             <td>{{this.customerLast}}</td>
             <td>{{this.employee}}</td>
-            <td>{{this.branch}}</td>
             <td>{{this.estimate}}</td>
             <td>{{this.status}}</td>
             <td>{{this.subtotal}}</td>
             <td>{{this.tax}}</td>
             <td>{{this.total}}</td>
-=======
-            <td>{{this.orderID}}</td>
-            <td>{{this.customerID}}</td>
-            <td>{{this.employeeID}}</td>
-            <td>{{this.locationID}}</td>
-            <td>{{this.address}}</td>
-            <td>{{this.dateOrdered}}</td>
-            <td>{{this.dateEstimateDelivery}}</td>
-            <td>{{this.dateDelivered}}</td>
-            <td>{{this.orderStatus}}</td>
-            <td>{{this.subtotal}}</td>
-            <td>{{this.tax}}</td>
-            <td>{{this.orderTotal}}</td>
->>>>>>> 185142f (Initial commit on sbleyl branch)
 
- {{! DELETE form }}
+ 
+            <td><a href="/invoices/{{this.id}}">View Order</a></td>
+{{! DELETE form }}            
             <form id='delete_person_form'>
                 <input type='hidden' name='delete_person_id' value='{{this.id}}' />
                 <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
@@ -61,3 +51,62 @@
     </tbody>
 </table>
 
+{{! UPDATE form }}
+<h2>Modify an order</h2>
+<form class='cuForm' id='update_order_form'>
+    <label for='update_order_id'>Order to Update: </label>
+    <select name='update_order_id' id='update_order_id' required>
+        <option value='' disabled selected>Select an order</option>
+        {{#each orders}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            sold to {{this.customerLast}} by {{this.employee}}
+        </option>
+        {{/each}}
+    </select>
+    <br><br>
+    <label for='update_order_customer'>Correct the Customer: </label>
+    <select name='update_order_customer' id='update_order_customer' required>
+        <option value='' disabled selected>Select a customer</option>
+        {{#each customers}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.first}} 
+            {{this.last}}
+        </option>
+        {{/each}}
+    </select>
+    <br><br>
+    <label for='update_order_employee'>Which employee helped you the most? </label>
+    <select name='update_order_employee' id='update_order_employee' required>
+        <option value='' disabled selected>Select an Employee</option>
+        {{#each employees}}
+        <option value='{{this.id}}' required>
+            {{this.id}}
+            -
+            {{this.first}}
+            {{this.last}}
+        </option>
+        {{/each}}
+    </select>
+    <br>
+    <br>
+    <label for='update_order_product'>What did you actually buy? </label>
+    <select name='update_order_product' id='update_order_product' required>
+        <option value='' disabled selected>Select a Product</option>
+        {{#each products}}
+        <option value='{{this.id}}' required>
+            {{this.ID}}
+            -
+            {{this.name}}
+        </option>
+        {{/each}}
+    </select>
+    <br><br>
+    <label for='new_purchase_count'>Number Bought: </label>
+    <input type='number' min="1" step="1" name='new_purchase_count' id='new_purchase_count' required/>
+
+    <input type='submit' value="Update the Order!"/>
+</form>

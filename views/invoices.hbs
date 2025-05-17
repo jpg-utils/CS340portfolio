@@ -1,13 +1,13 @@
 {{!--Joshua Griep, Sam Bleyl, CS340, adopted from the react portion the course material--}}
 
-<h1>Product Availability by store</h1>
+<h1>Order Details</h1>
 
 {{! READ table }}
 <table>
     <thead>
         {{! For the table header row, we print the DB attribute names }}
         <tr>
-            {{#each inventory.[0]}}
+            {{#each invoice.[0]}}
             <th>
                 {{@key}}
             </th>
@@ -18,15 +18,19 @@
 
     <tbody>
         {{! For each row, print the id, fname, lname, homeworld and age }}
-        {{#each inventory}}
+        {{#each invoice}}
         <tr>
-            <td>{{this.site}}</td>
-            <td>{{this.product}}</td>
+            <td>{{this.ID}}</td>
+            <td>{{this.productName}}</td>
+            <td>{{this.quantity}}</td>
+            <td>{{this.indprice}}</td>
+            <td>{{this.totalproduct}}</td>
+
 
  {{! DELETE form }}
             <form id='delete_person_form'>
-                <input type='hidden' name='delete_location_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_location_name' value='{{this.fname}} {{this.lname}}' />
+                <input type='hidden' name='delete_person_id' value='{{this.id}}' />
+                <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
                 <td>
                     <button type='submit'>
                         Delete
@@ -37,4 +41,3 @@
         {{/each}}
     </tbody>
 </table>
-

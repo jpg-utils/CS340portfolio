@@ -71,10 +71,13 @@ FROM Employees;
 
 -- Add employee
 INSERT INTO Employees (firstName, lastName, phone, email, employeeAddress, employeeCity, employeeStateAbbr, locationID, ordersFulfilledCount, ordersActiveCount, employeeRole)
-VALUES (@firstName@, @lastName@, @phone@, @email@, @employeeAddress@, @employeeCity@, @employeeStateAbbr@, @locationID@, @ordersFulfilledCount@, @ordersActiveCount@, @employeeRole@);
+SELECT @firstName@, @lastName@, @phone@, @email@, @employeeAddress@, @employeeCity@, @employeeStateAbbr@, l.locationID, @ordersFulfilledCount@, @ordersActiveCount@, @employeeRole@
+FROM Locations AS l
+WHERE l.locationName = @selectedBranchName@;
 
 -- Update employee
-UPDATE Employees
+UPDATE Employees AS e
+JOIN Locations  AS l ON l.locationName = @selectedBranchName@
     SET firstName = @firstName@, lastName = @lastName@, phone = @phone@, email = @email@, employeeAddress = @employeeAddress@, employeeCity = @employeeCity@, 
     employeeStateAbbr = @employeeStateAbbr@, locationID = @locationID@, ordersFulfilledCount = @ordersFulfilledCount@, ordersActiveCount = @ordersActiveCount@, 
     employeeRole = @employeeRole@
@@ -95,12 +98,17 @@ JOIN Customers c ON o.customerID = c.customerID;
 
 -- Add order
 INSERT INTO Orders (customerID, employeeID, locationID, address, dateOrdered, dateEstimateDelivery, dateDelivered, orderStatus, subtotal, tax, orderTotal)
-VALUES (@customerID@, @employeeID@, @locationID@, @address@, @dateOrdered@, @dateEstimateDelivery@, @dateDelivered@, @orderStatus@, @subtotal@, @tax@, @orderTotal@);
+VALUES ((SELECT customerID FROM Customers WHERE firstName = @customerFirst@ AND lastName = @customerLast@),
+    (SELECT employeeID FROM Employees WHERE firstName = @employeeFirst@ AND lastName = @employeeLast@),
+    (SELECT locationID FROM Locations WHERE locationName = @locationName@), @address@, @dateOrdered@, @dateEstimateDelivery@, @dateDelivered@, @orderStatus@, @subtotal@, @tax@, @orderTotal@
+);
 
 -- Update order
 UPDATE Orders
-    SET customerID = @customerID@, employeeID = @employeeID@, locationID = @locationID@, address = @address@, dateOrdered = @dateOrdered@, 
-    dateEstimateDelivery = @dateEstimateDelivery@, dateDelivered = @dateDelivered@, orderStatus = @orderStatus@, subtotal = @subtotal@, tax = @tax@, orderTotal = @orderTotal@
+    SET customerID = (SELECT customerID FROM Customers WHERE firstName = @customerFirst@ AND lastName = @customerLast@),
+        employeeID = (SELECT employeeID FROM Employees WHERE firstName = @employeeFirst@ AND lastName = @employeeLast@),
+        locationID = (SELECT locationID FROM Locations WHERE locationName = @locationName@), address = @address@, dateOrdered = @dateOrdered@, dateEstimateDelivery = @dateEstimateDelivery@, 
+        dateDelivered = @dateDelivered@, orderStatus = @orderStatus@, subtotal = @subtotal@, tax = @tax@, orderTotal = @orderTotal@
     WHERE orderID = @orderID@;
 
 -- Delete order
@@ -117,11 +125,11 @@ JOIN Products p ON po.productID = p.productID;
 
 -- Add product to order
 INSERT INTO ProductsOrdered (orderID, productID, quantity, productPrice, totalProductPrice)
-VALUES (@orderID@, @productID@, @quantity@, @productPrice@, @totalProductPrice@);
+VALUES (@orderID@, (SELECT productID FROM Products WHERE productName = @productName@), @quantity@, @productPrice@, @totalProductPrice@);
 
 -- Update product in order
 UPDATE ProductsOrdered
-    SET quantity = @quantity@, productPrice = @productPrice@, totalProductPrice = @totalProductPrice@
+    SET productID = (SELECT productID FROM Products WHERE productName = @productName@), quantity = @quantity@, productPrice = @productPrice@, totalProductPrice = @totalProductPrice@
     WHERE orderItemID = @orderItemID@;
 
 -- Delete product from order
@@ -138,13 +146,16 @@ JOIN Locations l ON pl.locationID = l.locationID
 JOIN Products p ON pl.productID = p.productID;
 
 -- Add product to location
+-- Add product to location (using friendly field lookups)
 INSERT INTO ProductLocation (locationID, productID)
-VALUES (@locationID@, @productID@);
+VALUES ((SELECT locationID FROM Locations WHERE locationName = @locationName@), (SELECT productID FROM Products WHERE productName = @productName@));
 
 -- Update product location
+-- Update product location (using friendly field lookups)
 UPDATE ProductLocation
-    SET locationID = @locationID@, productID = @productID@
+    SET locationID = (SELECT locationID FROM Locations WHERE locationName = @locationName@), productID = (SELECT productID FROM Products WHERE productName = @productName@)
     WHERE productLocationID = @productLocationID@;
+
 
 -- Delete product from location
 DELETE FROM ProductLocation

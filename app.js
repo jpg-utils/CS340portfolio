@@ -157,7 +157,7 @@ app.get('/orders', async function (req, res) {
         Orders.orderTotal AS 'total' FROM Orders \
         JOIN Locations ON Orders.locationID = Locations.locationID \
         JOIN Customers ON Customers.customerID = Orders.customerID \
-        JOIN Employees ON Employees.employeeID = Orders.employeeID \
+        LEFT JOIN Employees ON Employees.employeeID = Orders.employeeID \
         ORDER BY estimate;`;
         const [orders] = await db.query(query1);
         const query2 = `SELECT \
@@ -168,10 +168,9 @@ app.get('/orders', async function (req, res) {
             Customers.email AS 'email' FROM Customers;`
         const [customers] = await db.query(query2);
         const query3 = `SELECT \
-            Products.productID AS 'ID', \
             Products.productName AS 'name', \
             Products.productType AS 'type', \
-            Products.unitPrice AS 'price' \ 
+            Products.unitPrice AS 'price' \
             FROM Products;`;
         const [products] = await db.query(query3);;
         const query4 = `SELECT  \
@@ -239,6 +238,73 @@ app.get('/invoices/:id', async function (req, res) {
         res.render('invoices', { invoice: invoice});
     } catch (error) {
         console.error('Error executing queries:', error);
+        // Send a generic error message to the browser
+        res.status(500).send(
+            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
+        );
+    }
+});
+
+// retrieve a list of order details - requires joins
+app.get('/orderdetails', async function (req, res) {
+  try {
+    // returns relevant order details for all orders, customer, and product information
+    const query = `SELECT  \
+        ProductsOrdered.orderID as 'id', \
+        Customers.firstName as 'customerFirst', \
+        Customers.lastName as 'customerLast', \
+        DATE_FORMAT(Orders.dateEstimateDelivery, '%m/%e/%y') as 'estimate', \
+        Orders.orderStatus as 'status', \
+        Orders.orderTotal as 'total', \
+        Products.productName as 'product', \
+        ProductsOrdered.quantity as 'quantity', \
+        ProductsOrdered.productPrice as 'unitPrice', \
+        ProductsOrdered.totalProductPrice as 'lineTotal' \
+        FROM ProductsOrdered \
+        JOIN Orders ON ProductsOrdered.orderID = Orders.orderID \
+        JOIN Customers ON Orders.customerID = Customers.customerID \
+        JOIN Products ON ProductsOrdered.productID = Products.productID \
+        ORDER BY ProductsOrdered.orderID;`;
+        const [orderdetails] = await db.query(query);
+
+        // Render the Order Details Table inside of the orderdetails.hbs file
+        res.render('orderdetails', { orderdetails });
+  } catch (error) {
+    console.error('Error executing queries:', error);
+    // Send a generic error message to the browser
+        res.status(500).send(
+            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
+        );
+    }
+});
+
+// retrieve a list of order details - requires joins
+app.get('/orderdetails/:id', async function (req, res) {
+  try {
+    // returns relevant order details for a selected order based on its ID
+    const query = `SELECT  \
+        ProductsOrdered.orderID as 'id', \
+        Customers.firstName as 'customerFirst', \
+        Customers.lastName as 'customerLast', \
+        DATE_FORMAT(Orders.dateEstimateDelivery, '%m/%e/%y') as 'estimate', \
+        Orders.orderStatus as 'status', \
+        Orders.orderTotal as 'total', \
+        Products.productName as 'product', \
+        ProductsOrdered.quantity as 'quantity', \
+        ProductsOrdered.productPrice as 'unitPrice', \
+        ProductsOrdered.totalProductPrice as 'lineTotal' \
+        FROM ProductsOrdered \
+        JOIN Orders ON ProductsOrdered.orderID = Orders.orderID \
+        JOIN Customers ON Orders.customerID = Customers.customerID \
+        JOIN Products ON ProductsOrdered.productID = Products.productID \
+        WHERE ProductsOrdered.orderID = ? \
+        ORDER BY ProductsOrdered.orderID;`;
+        const [orderdetails] = await db.query(query, [req.params.id]);
+
+        // Render the Order Details Table inside of the orderdetails.hbs file
+        res.render('orderdetails', { orderdetails });
+  } catch (error) {
+        console.error(`Error executing queries: #${req.params.id}:`, error);
         // Send a generic error message to the browser
         res.status(500).send(
             "We're sorry, we've hit an error on our end. Please check back in a few minutes"

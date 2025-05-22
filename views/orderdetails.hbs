@@ -1,0 +1,78 @@
+{{!-- orderdetails.hbs — Joshua Griep, Sean Bleyl, CS340 --}}
+
+<h1>Order Details</h1>
+
+{{! READ table }}
+<table>
+  <thead>
+    <tr>
+      {{!-- Dynamically render each property name from the first row --}}
+      {{#each orderdetails.[0]}}
+      <th>{{@key}}</th>
+      {{/each}}
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {{#each orderdetails}}
+    <tr>
+      <td>{{this.id}}</td>
+      <td>{{this.customerFirst}}</td>
+      <td>{{this.customerLast}}</td>
+      <td>{{this.estimate}}</td>
+      <td>{{this.status}}</td>
+      <td>{{this.total}}</td>
+      <td>{{this.product}}</td>
+      <td>{{this.quantity}}</td>
+      <td>{{this.unitPrice}}</td>
+      <td>{{this.lineTotal}}</td>
+      {{!-- empty cell for future CRUD buttons --}}
+      <td>
+        <form id="delete_orderdetail_form">
+          <input type="hidden" name="delete_orderdetail_id" value="{{this.id}}" />
+          <button type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+{{! CREATE form }}
+<h2>New Order Detail</h2>
+<form class="cuForm" id="create_orderdetail_form">
+    <label for="create_orderdetail_orderid">Order ID:</label>
+    <input type="text" name="create_orderdetail_orderid" id="create_orderdetail_orderid" required />
+
+    <label for="create_orderdetail_product">Product Name:</label>
+    <input type="text" name="create_orderdetail_product" id="create_orderdetail_product" required />
+
+    <label for="create_orderdetail_quantity">Quantity:</label>
+    <input type="number" name="create_orderdetail_quantity" id="create_orderdetail_quantity" min="1" required />
+
+    <label for="create_orderdetail_unitprice">Unit Price:</label>
+    <input type="number" name="create_orderdetail_unitprice" id="create_orderdetail_unitprice" min="1" step=".01" required />
+
+    <input type="submit" value="Add Order Detail" />
+</form>
+
+{{! UPDATE form }}
+<h2>Update Order Detail</h2>
+<form class="cuForm" id="update_orderdetail_form">
+    <label for="update_orderdetail_id">Select Order Detail (by Order ID and Product):</label>
+    <select name="update_orderdetail_id" id="update_orderdetail_id" required>
+        <option value="" disabled selected>Select an Order Detail</option>
+        {{#each orderdetails}}
+        <option value="{{this.id}}">{{this.id}} - {{this.product}}</option>
+        {{/each}}
+    </select>
+
+    <label for="update_orderdetail_quantity">New Quantity:</label>
+    <input type="number" name="update_orderdetail_quantity" id="update_orderdetail_quantity" min="1" required />
+
+    <label for="update_orderdetail_unitprice">New Unit Price:</label>
+    <input type="number" name="update_orderdetail_unitprice" id="update_orderdetail_unitprice" min="1" step=".01" required />
+
+    <input type="submit" value="Update Order Detail" />
+</form>

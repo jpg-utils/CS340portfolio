@@ -19,7 +19,7 @@
     <tbody>
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each customers}}
-        <tr>
+        <tr data-value={{this.id}}>
             <td>{{this.id}}</td>
             <td>{{this.first}}</td>
             <td>{{this.last}}</td>
@@ -27,15 +27,11 @@
             <td>{{this.email}}</td>
 
  {{! DELETE form }}
-            <form id='delete_person_form'>
-                <input type='hidden' name='delete_person_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
-                <td>
-                    <button type='submit'>
-                        Delete
-                    </button>
-                </td>
-            </form>
+            <td>
+            <button class="delete-customer" data-id="{{this.id}}">
+                Delete
+            </button>
+            </td>
         </tr>
         {{/each}}
     </tbody>
@@ -43,43 +39,47 @@
 
 {{! CREATE form }}
 <h2>New Customer</h2>
-<form class='cuForm' id='create_customer_form'>
-    <label for='create_customer_fname'>First Name: </label>
-    <input type='text' name='create_customer_fname' id='create_customer_fname' required />
+<form class='cuForm' id='create_customer_form' method='POST' action='/add-customer'>
+        <label for='create_customer_fname'>First Name: </label>
+        <input type='text' name='create_customer_fname' id='create_customer_fname' required />
 
-    <label for='create_customer_lname'>Last Name: </label>
-    <input type='text' name='create_customer_lname' id='create_customer_lname' required/>
-    
-    <label for='create_customer_email'>Email Address: </label>
-    <input type='email' name='create_customer_email' id='create_customer_email' required/>
+        <label for='create_customer_lname'>Last Name: </label>
+        <input type='text' name='create_customer_lname' id='create_customer_lname' required/>
 
-    <label for='create_customer_phone'>Phone: </label>
-    <input type='tel' name='create_customer_phone' id='create_customer_phone' pattern="[0-9]{10}" required/>
+        <label for='create_customer_phone'>Phone: </label>
+        <input type='tel' name='create_customer_phone' id='create_customer_phone' pattern="[0-9]{10}" required/>
 
+        <label for='create_customer_email'>Email Address: </label>
+        <input type='email' name='create_customer_email' id='create_customer_email' required/>
     <input type='submit' value="Become a consumer today!" />
 </form>
 
 {{! UPDATE form }}
 <h2>Update a Customer</h2>
-<form class='cuForm' id='update_customer_form'>
-    <label for='update_customer_id'>Customer to Update: </label>
-    <select name='update_customer_id' id='update_customer_id' required>
-        <option value='' disabled selected>Select a Customer</option>
-        {{#each customers}}
-        <option value='{{this.id}}' required>
-            {{this.id}}
-            -
-            {{this.first}}
-            {{this.last}}
-        </option>
-        {{/each}}
+<form class="cuForm" id="update_customer_form">
+    <label>Customer:</label>
+    <select name="update_customer_id" required>
+    <option disabled selected>Select…</option>
+    {{#each customers}}
+        <option value="{{this.id}}">#{{this.id}} — {{this.first}} {{this.last}}</option>
+    {{/each}}
     </select>
 
-    <label for='create_customer_phone'>Phone: </label>
-    <input type='tel' name='create_customer_phone' id='create_customer_phone' pattern="[0-9]{10}"  required/>
 
-    <label for='update_customer_email'>Email: </label>
-    <input type='email' name='update_customer_email' id='update_customer_email'  required/>
+    <label>First Name:</label>
+    <input id="update_customer_fname" name="update_customer_fname" required>
 
-    <input type='submit' value="Update my info!"/>
+    <label>Last Name:</label>
+    <input id="update_customer_lname" name="update_customer_lname" required>
+
+    <label>Phone:</label>
+    <input id="update_customer_phone" name="update_customer_phone" pattern="[0-9]{10}" required>
+
+    <label>Email:</label>
+    <input id="update_customer_email" name="update_customer_email" type="email" required>
+
+    <button type="submit">Update</button>
 </form>
+
+<script src = "/js/add_customer.js"></script>
+<script src = "/js/update_customer.js"></script>

@@ -8,7 +8,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+
 
 const PORT = 2998;
 
@@ -20,6 +20,7 @@ const { engine } = require('express-handlebars'); // Import express-handlebars e
 app.engine('.hbs', engine({ extname: '.hbs' })); // Create instance of handlebars
 app.set('view engine', '.hbs'); // Use handlebars engine for *.hbs files.
 
+app.use(express.static('public'));
 // ########################################
 // ########## ROUTE HANDLERS
 
@@ -419,7 +420,119 @@ app.get('/demo-delete', async (req, res) => {
   }
 });
 
+// CREATE Customer
+app.post('/add-customer', function(req, res) {
+  const data = req.body;
 
+  const query1 = `
+    INSERT INTO Customers (firstName, lastName, phone, email)
+    VALUES ('${data.first}', '${data.last}', '${data.phone}', '${data.email}')
+  `;
+
+  db.query(query1, function(error) {
+    if (error) {
+      console.log(error);
+      return res.sendStatus(400);
+    }
+
+    const query2 = `
+      SELECT customerID as id, firstName as first, lastName as last, phone, email
+      FROM Customers
+      ORDER BY customerID ASC
+    `;
+
+    db.query(query2, function(error2, rows) {
+      if (error2) {
+        console.log(error2);
+        return res.sendStatus(400);
+      }
+      // Send full JSON array of customers (used to extract last entry on frontend)
+      res.send(rows);
+    });
+  });
+});
+
+// UPDATE Customer
+app.put('/put-customer', function(req, res) {
+  const data = req.body;
+  const customerID = parseInt(data.id);
+
+  const query = `
+    UPDATE Customers
+       SET firstName = '${data.firstNameValue}',
+           lastName  = '${data.lastNameValue}',
+           phone     = '${data.phoneValue}',
+           email     = '${data.emailValue}'
+     WHERE customerID = ?
+  `;
+  db.pool.query(query, [customerID], function(error, rows) {
+    if (error) {
+      console.log(error);
+      return res.sendStatus(400);
+    }
+    // Return the updated row(s) so front-end can update the table dynamically
+    res.send(rows);
+  });
+});
+
+// DELETE Customer
+app.delete('/customers/:id', async (req, res) => {
+  try {
+    await db.query(
+      `CALL DeleteCustomer(?);`,
+      [req.params.id]
+    );
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    res.status(500).send('Error deleting customer');
+  }
+});
+
+// CREATE Products Ordered
+app.post('/orderdetails', async (req, res) => {
+  try {
+    const { orderId, productId, quantity, unitPrice } = req.body;
+    // Assume your stored procedure calculates the total.
+    await db.query(
+      `CALL CreateOrderDetail(?, ?, ?, ?);`,
+      [orderId, productId, quantity, unitPrice]
+    );
+    res.sendStatus(201);
+  } catch (error) {
+    console.error('Error creating order detail using stored procedure:', error);
+    res.status(500).send('Error creating order detail');
+  }
+});
+
+// UPDATE Products Ordered
+app.put('/orderdetails/:itemID', async (req, res) => {
+  try {
+    const { quantity, unitPrice } = req.body;
+    await db.query(
+      `CALL UpdateOrderDetail(?, ?, ?);`,
+      [req.params.itemID, quantity, unitPrice]
+    );
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error updating order detail using stored procedure:', error);
+    res.status(500).send('Error updating order detail');
+  }
+});
+
+// DELETE Products Ordered
+app.delete('/orderdetails/:itemID', async (req, res) => {
+  try {
+    await db.query(
+      `CALL DeleteOrderDetail(?);`,
+      [req.params.itemID]
+    );
+    res.sendStatus(204);
+  } catch (error) {
+    console.error('Error deleting order detail using stored procedure:', error);
+    res.status(500).send('Error deleting order detail');
+  }
+});
 
 // ########################################
 // ########## LISTENER

@@ -6,17 +6,15 @@
     "mysql2": "^3.14.1",
     "nodemon": "^3.1.10"
   },
-  
   "name": "js-project",
   "version": "1.0.0",
   "description": "home test of this  thing",
   "main": "app.js",
-  "devDependencies": {},
-"scripts": {
+  "scripts": {
     "development": "npx nodemon app.js",
     "production": "npx forever start app.js",
     "stop_production": "npx forever stop app.js"
-},
+  },
   "author": "josh griep",
   "license": "ISC"
 }

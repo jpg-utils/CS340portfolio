@@ -5,14 +5,13 @@ DELIMITER //
 CREATE PROCEDURE ResetFurniTech()
 BEGIN
  SET FOREIGN_KEY_CHECKS = 0;
-    TRUNCATE TABLE ProductsOrdered;
-    TRUNCATE TABLE ProductLocation;
-    TRUNCATE TABLE Orders;
-    TRUNCATE TABLE Employees;
-    TRUNCATE TABLE Customers;
-    TRUNCATE TABLE Products;
-    TRUNCATE TABLE Locations;
-
+  TRUNCATE TABLE ProductsOrdered;
+  TRUNCATE TABLE ProductLocation;
+  TRUNCATE TABLE Orders;
+  TRUNCATE TABLE Employees;
+  TRUNCATE TABLE Customers;
+  TRUNCATE TABLE Products;
+  TRUNCATE TABLE Locations;
 
 -- Insert data into Customers:
 INSERT INTO Customers  (firstName, lastName, phone, email)
@@ -86,6 +85,81 @@ END //
 CREATE PROCEDURE DeleteLeroy()
 BEGIN
     DELETE FROM Customers WHERE firstName='Leroy' AND lastName='Jenkins';
+END //
+
+-- Procedure for Creating a Customer
+CREATE PROCEDURE CreateCustomer(
+  IN p_firstName VARCHAR(25),
+  IN p_lastName VARCHAR(25),
+  IN p_phone VARCHAR(10),
+  IN p_email VARCHAR(30)
+)
+BEGIN
+  INSERT INTO Customers (firstName, lastName, phone, email)
+  VALUES (p_firstName, p_lastName, p_phone, p_email);
+END //
+
+-- Procedure for Updating a Customer
+CREATE PROCEDURE UpdateCustomer(
+  IN p_customerID INT,
+  IN p_firstName VARCHAR(25),
+  IN p_lastName VARCHAR(25),
+  IN p_phone VARCHAR(10),
+  IN p_email VARCHAR(30)
+)
+BEGIN
+  UPDATE Customers
+  SET firstName = p_firstName,
+      lastName = p_lastName,
+      phone = p_phone,
+      email = p_email
+  WHERE customerID = p_customerID;
+END //
+
+-- Procedure for Deleting a Customer
+CREATE PROCEDURE DeleteCustomer(
+  IN p_customerID INT
+)
+BEGIN
+  DELETE FROM Customers
+  WHERE customerID = p_customerID;
+END //
+
+-- Procedure for Creating an Order Detail (ProductsOrdered)
+CREATE PROCEDURE CreateOrderDetail(
+  IN p_orderID INT,
+  IN p_productID INT,
+  IN p_quantity INT,
+  IN p_unitPrice DECIMAL(8,2)
+)
+BEGIN
+  INSERT INTO ProductsOrdered (orderID, productID, quantity, productPrice, totalProductPrice)
+  VALUES (p_orderID, p_productID, p_quantity, p_unitPrice, p_quantity * p_unitPrice);
+END //
+
+-- Procedure for Updating an Order Detail
+CREATE PROCEDURE UpdateOrderDetail(
+  IN p_orderItemID INT,
+  IN p_quantity INT,
+  IN p_unitPrice DECIMAL(8,2)
+)
+BEGIN
+  UPDATE ProductsOrdered
+  SET quantity = p_quantity,
+      productPrice = p_unitPrice,
+      totalProductPrice = p_quantity * p_unitPrice
+  WHERE orderItemID = p_orderItemID;
+END //
+
+-- Procedure for Deleting an Order Detail
+CREATE PROCEDURE DeleteOrderDetail(
+  IN p_orderItemID INT
+)
+BEGIN
+  DELETE FROM ProductsOrdered
+  WHERE orderItemID = p_orderItemID;
+END //
+  
 
 SET FOREIGN_KEY_CHECKS = 1;
 END //

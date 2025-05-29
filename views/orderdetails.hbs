@@ -1,6 +1,6 @@
 {{!-- views/orderdetails.hbs — Joshua Griep, Sean Bleyl, CS340 --}}
 
-<h1>Order Details</h1>
+<h1>Product Details</h1>
 
 {{!-- READ table --}}
 <table>
@@ -14,7 +14,7 @@
   </thead>
   <tbody>
     {{#each orderdetails}}
-    <tr>
+    <tr data-value="{{this.id}}">
       <td>{{this.id}}</td>
       <td>{{this.customerFirst}}</td>
       <td>{{this.customerLast}}</td>
@@ -59,3 +59,6 @@
 
   <button type="submit">Update</button>
 </form>
+
+<script src = "/js/update_orderdetail.js"></script>
+<script src = "/js/delete_orderdetail.js"></script>

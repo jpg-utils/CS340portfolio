@@ -2,88 +2,88 @@
 
 <h1>Locations</h1>
 
-{{! READ table }}
+{{!-- READ table --}}
 <table>
-    <thead>
-        {{! For the table header row, we print the DB attribute names }}
-        <tr>
-            {{#each locations.[0]}}
-            <th>
-                {{@key}}
-            </th>
-            {{/each}}
-            <th></th>
-        </tr>
-    </thead>
-
-    <tbody>
-        {{! For each row, print the id, fname, lname, homeworld and age }}
-        {{#each locations}}
-        <tr>
-            <td>{{this.id}}</td>
-            <td>{{this.branch}}</td>
-            <td>{{this.address}}</td>
-            <td>{{this.city}}</td>
-            <td>{{this.state}}</td>
-            <td>{{this.phone}}</td>
-            <td><a href="/inventory/{{this.id}}">View Inventory</a></td>
- {{! DELETE form }}
-            <form id='delete_person_form'>
-                <input type='hidden' name='delete_location_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_location_name' value='{{this.fname}} {{this.lname}}' />
-                <td>
-                    <button type='submit'>
-                        Delete
-                    </button>
-                </td>
-            </form>
-        </tr>
-        {{/each}}
-    </tbody>
+  <thead>
+    <tr>
+      {{#each locations.[0]}}
+        <th>{{@key}}</th>
+      {{/each}}
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each locations}}
+      <tr data-value="{{this.id}}">
+        <td>{{this.id}}</td>
+        <td>{{this.branch}}</td>
+        <td>{{this.address}}</td>
+        <td>{{this.city}}</td>
+        <td>{{this.state}}</td>
+        <td>{{this.phone}}</td>
+        <td><a href="/inventory/{{this.id}}">View Inventory</a></td>
+        {{!-- DELETE form --}}
+        <form class="delete-location-form">
+          <input type="hidden" name="delete_location_id" value="{{this.id}}" />
+          <input type="hidden" name="delete_location_branch" value="{{this.branch}}" />
+          <td>
+            <button class="delete-location" data-id="{{this.id}}">Delete</button>
+          </td>
+        </form>
+      </tr>
+    {{/each}}
+  </tbody>
 </table>
 
-{{! CREATE form }}
+{{!-- CREATE form --}}
 <h2>New Site</h2>
-<form class='cuForm' id='create_employee_form'>
-    <label for='create_location_branch'>Branch Name: </label>
-    <input type='text' name='create_location_branch' id='create_location_branch'   required/>
+<form class="cuForm" id="create_location_form" method="POST" action="/add-location">
+  <label for="create_location_branch">Branch Name: </label>
+  <input type="text" name="create_location_branch" id="create_location_branch" required />
 
-    <label for='create_location_address'>Address: </label>
-    <input type='text' name='create_location_address' id='create_location_address'   required/>
+  <label for="create_location_address">Address: </label>
+  <input type="text" name="create_location_address" id="create_location_address" required />
 
-    <label for='update_location_city'>City: </label>
-    <input type='text' name='update_location_city' id='update_location_city'  required/>
+  <label for="create_location_city">City: </label>
+  <input type="text" name="create_location_city" id="create_location_city" required />
 
-    <label for='update_location_state'>State: </label>
-    <input type='text' name='update_location_state' id='update_location_state'  required/>
+  <label for="create_location_state">State: </label>
+  <input type="text" name="create_location_state" id="create_location_state" required />
 
-    <input type='submit' value="Add location" />
+  <label for="create_location_phone">Phone: </label>
+  <input type="tel" id="create_location_phone" pattern="[0-9]{10}" required />
+
+  <input type="submit" value="Add location" />
 </form>
 
-{{! UPDATE form }}
+{{!-- UPDATE form --}}
 <h2>Update a Location</h2>
-<form class='cuForm' id='update_Location_form'>
-    <label for='update_Location_id'>Select a site: </label>
-    <select name='update_customer_id' id='update_customer_id' required>
-        <option value='' disabled selected>Select a Site</option>
-        {{#each locations}}
-        <option value='{{this.id}}' required>
-            {{this.id}}
-            -
-            {{this.branch}}
-        </option>
-        {{/each}}
-    </select>
+<form class="cuForm" id="update_location_form">
+  <label for="update_location_id">Select a Site: </label>
+  <select name="update_location_id" id="update_location_id" required>
+    <option value="" disabled selected>Select a Site</option>
+    {{#each locations}}
+      <option value="{{this.id}}">
+        {{this.id}} - {{this.branch}}
+      </option>
+    {{/each}}
+  </select>
 
-    <label for='create_location_address'>Address: </label>
-    <input type='text' name='create_location_address' id='create_location_address'   required/>
+  <label for="update_location_address">Address: </label>
+  <input type="text" name="update_location_address" id="update_location_address" required />
 
-    <label for='update_location_city'>City: </label>
-    <input type='text' name='update_location_city' id='update_location_city'  required/>
+  <label for="update_location_city">City: </label>
+  <input type="text" name="update_location_city" id="update_location_city" required />
 
-    <label for='update_location_state'>State: </label>
-    <input type='text' name='update_location_state' id='update_location_state'  required/>
-    
-    
-    <input type='submit' value="Update the site!"/>
+  <label for="update_location_state">State: </label>
+  <input type="text" name="update_location_state" id="update_location_state" required />
+
+  <label for="update_location_phone">Phone: </label>
+  <input type="tel" id="update_location_phone" pattern="[0-9]{10}" required />
+
+  <input type="submit" value="Update the site!" />
 </form>
+
+<script src="/js/add_location.js"></script>
+<script src="/js/update_location.js"></script>
+<script src="/js/delete_location.js"></script>

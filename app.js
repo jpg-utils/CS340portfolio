@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-const PORT = 2998;
+const PORT = 5422;
 
 // Database for CRUD actions on the data
 const db = require('./database/db-connector.js');
@@ -34,8 +34,6 @@ app.get('/', async function (req, res) {
         res.status(500).send('An error occurred while rendering the page.');
     }
 });
-
-
 
 //retrieve a list of our current customers
 app.get('/customers', async function (req, res) {
@@ -66,6 +64,7 @@ app.get('/products', async function (req, res) {
     try {
         // returns all attributes on the product
         const query1 = `SELECT \
+            productID   AS id,
             Products.productName AS 'name', \
             Products.productType AS 'type', \
             Products.unitPrice AS 'price' \ 
@@ -82,8 +81,6 @@ app.get('/products', async function (req, res) {
         );
     }
 });
-
-
 
 
 //retrieve a list of our locations
@@ -112,84 +109,71 @@ app.get('/locations', async function (req, res) {
 
 
 //retrieve a list of employees- requires join to get Branch worked
-app.get('/employees', async function (req, res) {
-    try {
-        // returns relevant attributes on locations
-        const query1 = `SELECT  \
-        Employees.employeeID as 'id', \
-        Employees.firstName as 'first', \
-        Employees.lastName as 'last', \
-        Employees.employeeRole AS 'role', \
-        Employees.ordersActiveCount AS 'active', \
-        Employees.phone AS 'phone', \
-        Locations.locationName AS 'branch' FROM Employees \
-        JOIN Locations ON Employees.locationID = Locations.LocationID \
-        ORDER BY branch`;
-        const [employees] = await db.query(query1);
+app.get('/employees', async (req, res) => {
+  try {
+    const [employees] = await db.query(`
+      SELECT 
+        e.employeeID   AS id,
+        e.firstName    AS first,
+        e.lastName     AS last,
+        e.employeeRole AS role,
+        e.ordersActiveCount AS active,
+        e.phone,
+        e.locationID,
+        l.locationName AS branch
+      FROM Employees e
+      LEFT JOIN Locations l ON e.locationID = l.locationID
+      ORDER BY e.employeeID;
+    `);
 
-        const query2 =`SELECT * FROM Locations`;
-        const [locations] = await db.query(query2);
+    const [locations] = await db.query(`
+      SELECT locationID AS id, locationName AS branch
+      FROM Locations
+      ORDER BY locationName;
+    `);
 
-        // Render the employees Table inside of the employees.hbs file
-        res.render('employees', { employees: employees, locations: locations});
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
-        );
-    }
+    res.render('employees', { employees, locations });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 //retrieve a list of orders- requires joins
-app.get('/orders', async function (req, res) {
-    try {
-        // returns relevant attributes on locations
-        const query1 = `SELECT  \
-        Orders.orderID as 'id', \
-        Customers.firstName as 'customerFirst', \
-        Customers.lastName as 'customerLast', \
-        Employees.lastName as 'employee', \
-        Locations.locationName AS 'branch', \
-        DATE_format(Orders.dateEstimateDelivery, "%m/%e/%y") AS 'estimate', \
-        Orders.orderStatus AS 'status', \
-        Orders.subtotal AS 'subtotal', \
-        Orders.tax AS 'tax', \
-        Orders.orderTotal AS 'total' FROM Orders \
-        JOIN Locations ON Orders.locationID = Locations.locationID \
-        JOIN Customers ON Customers.customerID = Orders.customerID \
-        LEFT JOIN Employees ON Employees.employeeID = Orders.employeeID \
-        ORDER BY estimate;`;
-        const [orders] = await db.query(query1);
-        const query2 = `SELECT \
-            Customers.customerID AS 'id', \
-            Customers.firstName AS 'first', \
-            Customers.lastName AS 'last', \
-            Customers.phone AS 'phone', \
-            Customers.email AS 'email' FROM Customers;`
-        const [customers] = await db.query(query2);
-        const query3 = `SELECT \
-            Products.productName AS 'name', \
-            Products.productType AS 'type', \
-            Products.unitPrice AS 'price' \
-            FROM Products;`;
-        const [products] = await db.query(query3);;
-        const query4 = `SELECT  \
-            Employees.employeeID as 'id', \
-            Employees.firstName as 'first', \
-            Employees.lastName as 'last' \
-            FROM Employees;`;
-        const [employees] = await db.query(query4);
+// ─── app.js ───
+app.get('/orders', async (req, res) => {
+  try {
+    const query1 = `SELECT
+        o.orderID   AS id,
+        c.firstName AS customerFirst,
+        c.lastName  AS customerLast,
+        e.lastName  AS employee,
+        DATE_FORMAT(o.dateEstimateDelivery, '%m/%e/%y') AS estimate,
+        o.orderStatus AS status,
+        o.subtotal,
+        o.tax,
+        o.orderTotal AS total
+      FROM Orders o
+      JOIN Customers c ON o.customerID = c.customerID
+      LEFT JOIN Employees e ON o.employeeID = e.employeeID
+      ORDER BY estimate;`;
+    const [orders]    = await db.query(query1);
 
-        // Render the Customer Table inside of the customer.hbs file
-        res.render('orders', { orders: orders, customers:customers, products:products, employees:employees});
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
-        );
-    }
+    const [customers] = await db.query(`
+      SELECT customerID AS id, firstName AS first, lastName AS last
+      FROM Customers;
+    `);
+
+    const [employees] = await db.query(`
+      SELECT employeeID AS id, firstName AS first, lastName AS last
+      FROM Employees;
+    `);
+
+    res.render('orders', { orders, customers, employees });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 
@@ -219,7 +203,6 @@ app.get('/invoices', async function (req, res) {
 });
 
 
-
 //retrieve a list of orders- requires joins
 app.get('/invoices/:id', async function (req, res) {
     try {
@@ -245,6 +228,7 @@ app.get('/invoices/:id', async function (req, res) {
         );
     }
 });
+
 
 // retrieve a list of order details - requires joins
 app.get('/orderdetails', async function (req, res) {
@@ -278,6 +262,7 @@ app.get('/orderdetails', async function (req, res) {
         );
     }
 });
+
 
 // retrieve a list of order details - requires joins
 app.get('/orderdetails/:id', async function (req, res) {
@@ -314,87 +299,80 @@ app.get('/orderdetails/:id', async function (req, res) {
 });
 
 
-app.get('/inventory', async function (req, res) {
-    try {
-        // returns relevant attributes on locations
-        const query1 = `SELECT  \
-        Locations.locationName as 'site', \
-        Products.productName as 'product' \
-        FROM ProductLocation \
-        JOIN Products ON ProductLocation.productID = Products.productID \
-        JOIN Locations ON ProductLocation.locationID = Locations.locationID`;
-        const [inventory] = await db.query(query1);
+// LIST ALL INVENTORY
+app.get('/inventory', async (req, res) => {
+  try {
+    const query1 = `
+      SELECT
+        productLocationID      AS id,
+        Locations.locationName AS site,
+        Products.productName   AS product
+      FROM ProductLocation
+      JOIN Products  ON ProductLocation.productID  = Products.productID
+      JOIN Locations ON ProductLocation.locationID = Locations.locationID
+    `;
+    const [inventory] = await db.query(query1);
+    res.render('inventory', { inventory });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
+});
 
-        // Render the Customer Table inside of the customer.hbs file
-        res.render('inventory', { inventory: inventory});
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
-        );
-    }
+// LIST ONE LOCATION’S INVENTORY
+app.get('/inventory/:id', async (req, res) => {
+  try {
+    const query1 = `
+      SELECT
+        productLocationID      AS id,
+        Locations.locationName AS site,
+        Products.productName   AS product
+      FROM ProductLocation
+      JOIN Products  ON ProductLocation.productID  = Products.productID
+      JOIN Locations ON ProductLocation.locationID = Locations.locationID
+      WHERE ProductLocation.locationID = ?
+    `;
+    const [inventory] = await db.query(query1, [req.params.id]);
+    res.render('inventory', { inventory });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("DB error");
+  }
 });
 
 
+app.get('/purchase', async (req, res) => {
+  try {
+    const [customers] = await db.query(`
+      SELECT
+        customerID AS id,
+        firstName  AS first,
+        lastName   AS last
+      FROM Customers;
+    `);
 
+    const [employees] = await db.query(`
+      SELECT
+        employeeID AS id,
+        firstName  AS first,
+        lastName   AS last
+      FROM Employees;
+    `);
 
-app.get('/inventory/:id', async function (req, res) {
-    try {
-        // returns relevant attributes on locations
-        const query1 = `SELECT  \
-        Locations.locationName as 'site', \
-        Products.productName as 'product' \
-        FROM ProductLocation \
-        JOIN Products ON ProductLocation.productID = Products.productID \
-        JOIN Locations ON ProductLocation.locationID = Locations.locationID \
-        WHERE ProductLocation.locationID = ${req.params.id};`;
-        const [inventory] = await db.query(query1);
+    const [products] = await db.query(`
+      SELECT
+        productID   AS id,
+        productName AS name,
+        productType AS type,
+        unitPrice   AS price
+      FROM Products;
+    `);
 
-        // Render the Customer Table inside of the customer.hbs file
-        res.render('inventory', { inventory: inventory});
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
-        );
-    }
-});
-
-app.get('/purchase', async function (req, res) {
-    try {
-        // returns relevant attributes on locations
-        const query1 = `SELECT \
-            Customers.customerID AS 'id', \
-            Customers.firstName AS 'first', \
-            Customers.lastName AS 'last', \
-            Customers.phone AS 'phone', \
-            Customers.email AS 'email' FROM Customers;`
-        const [customers] = await db.query(query1);
-        const query2 = `SELECT \
-            Products.productID AS 'ID', \
-            Products.productName AS 'name', \
-            Products.productType AS 'type', \
-            Products.unitPrice AS 'price' \ 
-            FROM Products;`;
-        const [products] = await db.query(query2);;
-        const query3 = `SELECT  \
-            Employees.employeeID as 'id', \
-            Employees.firstName as 'first', \
-            Employees.lastName as 'last' \
-            FROM Employees;`;
-        const [employees] = await db.query(query3);
-
-        // Render the Customer Table inside of the customer.hbs file
-        res.render('purchase', { customers: customers, employees: employees, products:products});
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            "We're sorry, we've hit an error on our end. Please check back in a few minutes"
-        );
-    }
+    res.render('purchase', { customers, employees, products });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });
 
 // Reset Procedure
@@ -421,118 +399,504 @@ app.get('/demo-delete', async (req, res) => {
 });
 
 // CREATE Customer
-app.post('/add-customer', function(req, res) {
-  const data = req.body;
-
-  const query1 = `
-    INSERT INTO Customers (firstName, lastName, phone, email)
-    VALUES ('${data.first}', '${data.last}', '${data.phone}', '${data.email}')
-  `;
-
-  db.query(query1, function(error) {
-    if (error) {
-      console.log(error);
-      return res.sendStatus(400);
-    }
-
-    const query2 = `
-      SELECT customerID as id, firstName as first, lastName as last, phone, email
-      FROM Customers
-      ORDER BY customerID ASC
-    `;
-
-    db.query(query2, function(error2, rows) {
-      if (error2) {
-        console.log(error2);
-        return res.sendStatus(400);
-      }
-      // Send full JSON array of customers (used to extract last entry on frontend)
-      res.send(rows);
-    });
-  });
+app.post('/add-customer', async (req, res) => {
+  console.log('POST /add-customer body:', req.body);
+  try {
+    const { first, last, phone, email } = req.body;
+    await db.query(
+      `INSERT INTO Customers (firstName, lastName, phone, email)
+       VALUES (?, ?, ?, ?)`,
+      [first, last, phone, email]
+    );
+    const [rows] = await db.query(
+      `SELECT customerID AS id, firstName AS first, lastName AS last, phone, email
+       FROM Customers ORDER BY customerID`
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error('error in POST /add-customer:', err);
+    return res.status(500).send(`DB error: ${err.message}`);
+  }
 });
 
 // UPDATE Customer
-app.put('/put-customer', function(req, res) {
-  const data = req.body;
-  const customerID = parseInt(data.id);
-
-  const query = `
-    UPDATE Customers
-       SET firstName = '${data.firstNameValue}',
-           lastName  = '${data.lastNameValue}',
-           phone     = '${data.phoneValue}',
-           email     = '${data.emailValue}'
-     WHERE customerID = ?
-  `;
-  db.pool.query(query, [customerID], function(error, rows) {
-    if (error) {
-      console.log(error);
-      return res.sendStatus(400);
-    }
-    // Return the updated row(s) so front-end can update the table dynamically
-    res.send(rows);
-  });
+app.put('/put-customer', async (req, res) => {
+  try {
+    const { id, firstNameValue, lastNameValue, phoneValue, emailValue } = req.body;
+    await db.query(
+      `UPDATE Customers
+         SET firstName = ?,
+             lastName  = ?,
+             phone     = ?,
+             email     = ?
+       WHERE customerID = ?`,
+      [firstNameValue, lastNameValue, phoneValue, emailValue, id]
+    );
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error('error in PUT /put-customer:', err);
+    return res.sendStatus(400);
+  }
 });
 
 // DELETE Customer
-app.delete('/customers/:id', async (req, res) => {
+app.delete('/delete-customer', async (req, res) => {
+    const customerID = parseInt(req.body.id);
+    console.log("DELETE route hit with body ID:", customerID);
+
+    if (!customerID) {
+        return res.status(400).send("Missing or invalid customer ID.");
+    }
+
+    try {
+        const [result] = await db.query(
+            `DELETE FROM Customers WHERE customerID = ?`,
+            [customerID]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send("Customer not found.");
+        }
+
+        return res.sendStatus(204);
+    } catch (error) {
+        console.error("Error deleting customer:", error);
+        return res.status(500).send("Failed to delete customer.");
+    }
+});
+
+// CREATE Product
+app.post('/add-product', async (req, res) => {
+  console.log('POST /add-product body:', req.body);
   try {
+    const { name, type, price } = req.body;
     await db.query(
-      `CALL DeleteCustomer(?);`,
-      [req.params.id]
+      `INSERT INTO Products (productName, productType, unitPrice)
+       VALUES (?, ?, ?)`,
+      [name, type, price]
     );
-    res.sendStatus(204);
-  } catch (error) {
-    console.error('Error deleting customer:', error);
-    res.status(500).send('Error deleting customer');
+    const [rows] = await db.query(
+      `SELECT productID AS id,
+              productName AS name,
+              productType AS type,
+              unitPrice   AS price
+       FROM Products
+       ORDER BY productID`
+    );
+    return res.json(rows);
+  } catch (err) {
+    console.error('error in POST /add-product:', err);
+    return res.status(500).send(`DB error: ${err.message}`);
   }
 });
 
-// CREATE Products Ordered
-app.post('/orderdetails', async (req, res) => {
+// UPDATE Product
+app.put('/put-product', async (req, res) => {
   try {
-    const { orderId, productId, quantity, unitPrice } = req.body;
-    // Assume your stored procedure calculates the total.
+    const { id, nameValue, typeValue, priceValue } = req.body;
     await db.query(
-      `CALL CreateOrderDetail(?, ?, ?, ?);`,
-      [orderId, productId, quantity, unitPrice]
+      `UPDATE Products
+         SET productName = ?,
+             productType = ?,
+             unitPrice   = ?
+       WHERE productID = ?`,
+      [nameValue, typeValue, priceValue, id]
     );
-    res.sendStatus(201);
-  } catch (error) {
-    console.error('Error creating order detail using stored procedure:', error);
-    res.status(500).send('Error creating order detail');
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error('error in PUT /put-product:', err);
+    return res.sendStatus(400);
   }
 });
 
-// UPDATE Products Ordered
-app.put('/orderdetails/:itemID', async (req, res) => {
+// DELETE Product
+app.delete('/delete-product', async (req, res) => {
+  const productID = parseInt(req.body.id);
+  console.log("DELETE /delete-product with body ID:", productID);
+
+  if (!productID) {
+    return res.status(400).send("Missing or invalid product ID.");
+  }
+
   try {
-    const { quantity, unitPrice } = req.body;
-    await db.query(
-      `CALL UpdateOrderDetail(?, ?, ?);`,
-      [req.params.itemID, quantity, unitPrice]
+    const [result] = await db.query(
+      `DELETE FROM Products WHERE productID = ?`,
+      [productID]
     );
-    res.sendStatus(204);
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Product not found.");
+    }
+    return res.sendStatus(204);
   } catch (error) {
-    console.error('Error updating order detail using stored procedure:', error);
-    res.status(500).send('Error updating order detail');
+    console.error("Error deleting product:", error);
+    return res.status(500).send("Failed to delete product.");
   }
 });
 
-// DELETE Products Ordered
-app.delete('/orderdetails/:itemID', async (req, res) => {
+
+// CREATE Location
+app.post('/add-location', async (req, res) => {
   try {
+    const { branch, address, city, state, phone } = req.body;
     await db.query(
-      `CALL DeleteOrderDetail(?);`,
-      [req.params.itemID]
+      `INSERT INTO Locations
+         (locationName, locationAddress, locationCity, locationStateAbbr, phone)
+       VALUES (?, ?, ?, ?, ?)`,
+      [branch, address, city, state, phone]
     );
-    res.sendStatus(204);
-  } catch (error) {
-    console.error('Error deleting order detail using stored procedure:', error);
-    res.status(500).send('Error deleting order detail');
+    const [rows] = await db.query(`
+      SELECT
+        locationID AS id,
+        locationName AS branch,
+        locationAddress AS address,
+        locationCity    AS city,
+        locationStateAbbr AS state,
+        phone
+      FROM Locations
+      ORDER BY locationID
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
   }
 });
+
+// UPDATE Location
+app.put('/put-location', async (req, res) => {
+  try {
+    const { id, address, city, state, phone } = req.body;
+    await db.query(
+      `UPDATE Locations
+         SET locationAddress    = ?,
+             locationCity       = ?,
+             locationStateAbbr  = ?,
+             phone              = ?
+       WHERE locationID = ?`,
+      [address, city, state, phone, id]
+    );
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
+  }
+});
+
+// DELETE Location
+app.delete('/delete-location', async (req, res) => {
+  try {
+    const id = parseInt(req.body.id);
+    if (!id) return res.status(400).send('Missing ID');
+    const [result] = await db.query(
+      `DELETE FROM Locations WHERE locationID = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0) return res.status(404).send('Not found');
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
+  }
+});
+
+// CREATE Employee
+app.post('/add-employee', async (req, res) => {
+  const { first, last, role, active, phone, locID } = req.body;
+  try {
+    await db.query(`
+      INSERT INTO Employees
+        (firstName,lastName,employeeRole,ordersActiveCount,phone,locationID,ordersFulfilledCount)
+      VALUES (?, ?, ?, ?, ?, ?, 0)
+    `, [
+      first,
+      last,
+      role,
+      active,
+      phone,
+      locID === 'NULL' ? null : locID
+    ]);
+
+    const [rows] = await db.query(`
+      SELECT 
+        e.employeeID   AS id,
+        e.firstName    AS first,
+        e.lastName     AS last,
+        e.employeeRole AS role,
+        e.ordersActiveCount AS active,
+        e.phone,
+        e.locationID,
+        l.locationName AS branch
+      FROM Employees e
+      LEFT JOIN Locations l ON e.locationID = l.locationID
+      ORDER BY e.employeeID;
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
+  }
+});
+
+// UPDATE Employee
+app.put('/put-employee', async (req, res) => {
+  const { id, role, active, phone, locID } = req.body;
+  try {
+    await db.query(`
+      UPDATE Employees
+         SET employeeRole      = ?,
+             ordersActiveCount = ?,
+             phone             = ?,
+             locationID        = ?
+       WHERE employeeID = ?
+    `, [
+      role,
+      active,
+      phone,
+      locID === 'NULL' ? null : locID,
+      id
+    ]);
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
+  }
+});
+
+
+// DELETE Employee
+app.delete('/delete-employee', async (req, res) => {
+  try {
+    const id = parseInt(req.body.id);
+    if (!id) return res.status(400).send('Missing ID');
+    const [r] = await db.query(
+      `DELETE FROM Employees WHERE employeeID = ?`,
+      [id]
+    );
+    if (r.affectedRows===0) return res.status(404).send('Not found');
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
+  }
+});
+
+// UPDATE Order
+app.put('/put-order', async (req, res) => {
+  const { id, customerID, employeeID, estimate, status } = req.body;
+  if (!id || !customerID || !employeeID || !estimate || !status) {
+    return res.status(400).send('Missing fields');
+  }
+  try {
+    await db.query(
+      `UPDATE Orders
+         SET customerID           = ?,
+             employeeID           = ?,
+             dateEstimateDelivery = ?,
+             orderStatus          = ?
+       WHERE orderID = ?`,
+      [customerID, employeeID, estimate, status, id]
+    );
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send('DB error');
+  }
+});
+
+// DELETE Order
+app.delete('/delete-order', async (req, res) => {
+  const orderID = parseInt(req.body.id);
+  if (!orderID) return res.status(400).send('Missing order ID');
+  try {
+    const [r] = await db.query(
+      `DELETE FROM Orders WHERE orderID = ?`, [orderID]
+    );
+    if (r.affectedRows === 0) return res.status(404).send('Not found');
+    res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('DB error');
+  }
+});
+
+// UPDATE Order Detail
+app.put('/put-orderdetail', async (req, res) => {
+  const conn = await db.getConnection();
+  try {
+    const { id, quantityVal, unitPriceVal } = req.body;
+    await conn.beginTransaction();
+
+    await conn.query(
+      `UPDATE ProductsOrdered
+         SET quantity           = ?,
+             productPrice       = ?,
+             totalProductPrice  = ? * ?
+       WHERE orderItemID = ?`,
+      [quantityVal, unitPriceVal, quantityVal, unitPriceVal, id]
+    );
+
+    const [[{ totalProductPrice }]] = await conn.query(
+      `SELECT totalProductPrice
+         FROM ProductsOrdered
+        WHERE orderItemID = ?`,
+      [id]
+    );
+    const detailTotalNum = parseFloat(totalProductPrice);
+
+    const [[{ orderID }]] = await conn.query(
+      `SELECT orderID
+         FROM ProductsOrdered
+        WHERE orderItemID = ?`,
+      [id]
+    );
+
+    const [[{ newSubtotal }]] = await conn.query(
+      `SELECT SUM(totalProductPrice) AS newSubtotal
+         FROM ProductsOrdered
+        WHERE orderID = ?`,
+      [orderID]
+    );
+    const subtotalNum = parseFloat(newSubtotal);
+    const taxNum      = +(subtotalNum * 0.10).toFixed(2);
+    const totalNum    = +(subtotalNum + taxNum).toFixed(2);
+
+    await conn.query(
+      `UPDATE Orders
+         SET subtotal   = ?,
+             tax        = ?,
+             orderTotal = ?
+       WHERE orderID = ?`,
+      [
+        subtotalNum.toFixed(2),
+        taxNum.toFixed(2),
+        totalNum.toFixed(2),
+        orderID
+      ]
+    );
+
+    await conn.commit();
+
+    return res.json({
+      detailTotal:     detailTotalNum.toFixed(2),
+      orderSubtotal:   subtotalNum.toFixed(2),
+      orderTax:        taxNum.toFixed(2),
+      orderTotal:      totalNum.toFixed(2)
+    });
+  } catch (err) {
+    await conn.rollback();
+    console.error('error in PUT /put-orderdetail:', err);
+    return res.status(500).json({ error: 'Database error' });
+  } finally {
+    conn.release();
+  }
+});
+
+// DELETE Order Detail
+app.delete('/delete-orderdetail', async (req, res) => {
+  const orderItemID = parseInt(req.body.id);
+  if (!orderItemID) {
+    return res.status(400).send("Missing or invalid line item ID.");
+  }
+
+  try {
+    const [result] = await db.query(
+      `DELETE FROM ProductsOrdered WHERE orderItemID = ?`,
+      [orderItemID]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Line item not found.");
+    }
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error('error in DELETE /delete-orderdetail:', err);
+    return res.status(500).send("Failed to delete line item.");
+  }
+});
+
+// DELETE Inventory
+app.delete('/delete-inventory', async (req, res) => {
+  const inventoryID = parseInt(req.body.id);
+  console.log("DELETE /delete-inventory with ID:", inventoryID);
+
+  if (!inventoryID) {
+    return res.status(400).send("Missing or invalid inventory ID.");
+  }
+
+  try {
+    const [result] = await db.query(
+      `DELETE FROM ProductLocation WHERE productLocationID = ?`,
+      [inventoryID]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send("Inventory record not found.");
+    }
+
+    return res.sendStatus(204);
+  } catch (error) {
+    console.error("Error deleting inventory:", error);
+    return res.status(500).send("Failed to delete inventory.");
+  }
+});
+
+
+// CREATE ORDER
+app.post('/add-order', async (req, res) => {
+  const { customerID, employeeID, productID, quantity } = req.body;
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const DEFAULT_LOCATION_ID = 2;
+    const [orderResult] = await conn.query(
+      `INSERT INTO Orders
+         (customerID, employeeID, locationID, address, dateOrdered,
+          dateEstimateDelivery, orderStatus, subtotal, tax, orderTotal)
+       VALUES (?, ?, ?, 'n/a', CURDATE(),
+               DATE_ADD(CURDATE(), INTERVAL 5 DAY), 'Pending',
+               0, 0, 0)`,
+      [customerID, employeeID, DEFAULT_LOCATION_ID]
+    );
+    const orderID = orderResult.insertId;
+
+    const [[{ unitPrice }]] = await conn.query(
+      `SELECT unitPrice FROM Products WHERE productID = ?`,
+      [productID]
+    );
+
+    const lineTotal = unitPrice * quantity;
+    await conn.query(
+      `INSERT INTO ProductsOrdered
+         (orderID, productID, quantity, productPrice, totalProductPrice)
+       VALUES (?, ?, ?, ?, ?)`,
+      [orderID, productID, quantity, unitPrice, lineTotal]
+    );
+
+    // Recompute sums at 10% tax
+    const subtotal = lineTotal;
+    const tax      = +(subtotal * 0.10).toFixed(2);
+    const total    = +(subtotal + tax).toFixed(2);
+    await conn.query(
+      `UPDATE Orders
+         SET subtotal  = ?, 
+             tax       = ?, 
+             orderTotal= ?
+       WHERE orderID = ?`,
+      [subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2), orderID]
+    );
+
+    await conn.commit();
+    res.sendStatus(200);
+
+  } catch (err) {
+    await conn.rollback();
+    console.error('Error in POST /add-order:', err);
+    res.status(500).send('Database error');
+  } finally {
+    conn.release();
+  }
+});
+
 
 // ########################################
 // ########## LISTENER

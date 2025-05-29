@@ -1,86 +1,72 @@
+
 // Get the objects we need to modify
-let updateCustomers = document.getElementById('update_customer_form');
+const updateForm = document.getElementById('update_customer_form');
+const selectCustomer = updateForm.querySelector('select[name="update_customer_id"]');
+const inputFirst = document.getElementById('update_customer_fname');
+const inputLast = document.getElementById('update_customer_lname');
+const inputPhone = document.getElementById('update_customer_phone');
+const inputEmail = document.getElementById('update_customer_email');
 
-// Modify the objects we need
-updateCustomers.addEventListener("submit", function (e) {
-   
-    // Prevent the form from submitting
-    e.preventDefault();
-
-    // Get form fields we need to get data from
-    let inputCustomerID = document.getElementById("update_customer_id");
-    let inputFirstName = document.getElementById("update_customer_fname");
-    let inputLastName = document.getElementById("update_customer_lname");
-    let inputPhone = document.getElementById("update_customer_phone");
-    let inputEmail = document.getElementById("update_customer_email");
-
-
-    // Get the values from the form fields
-    let customerIDValue = inputCustomerID.value;
-    let firstNameValue = inputFirstName.value;
-    let lastNameValue = inputLastName.value;
-    let phoneValue = inputPhone.value;
-    let emailValue = inputEmail.value;
-
-    
-    if (firstNameValue, lastNameValue, emailValue, phoneValue == '') {
-        return;
-    };
-
-    // Put our data we want to send in a javascript object
-    let data = {
-        id:        customerIDValue,
-        firstName: firstNameValue,
-        lastName:  lastNameValue,
-        phone:     phoneValue,
-        email:     emailValue,
-    };
-
-    // Setup our AJAX request
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("PUT", `/customers/${customerIDValue}`, true);
-    xhttp.setRequestHeader("Content-type", "application/json");
-
-    // Tell our AJAX request how to resolve
-    xhttp.onreadystatechange = () => {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-
-            // Add the new data to the table
-            updateRow(xhttp.response, customerIDValue);
-        }
-        else if (xhttp.readyState == 4 && xhttp.status != 200) {
-            console.log("There was an error with the input.")
-        }
-    }
-
-    // Send the request and wait for the response
-    xhttp.send(JSON.stringify(data));
-    updateCustomers.reset();
+// When a customer is selected, prefill the form fields
+selectCustomer.addEventListener('change', () => {
+  const id = selectCustomer.value;
+  // Find the table row with that data-value
+  const row = document.querySelector(`tr[data-value='${id}']`);
+  if (!row) return;
+  const cells = row.querySelectorAll('td');
+  inputFirst.value = cells[1].innerText;
+  inputLast.value = cells[2].innerText;
+  inputPhone.value = cells[3].innerText;
+  inputEmail.value = cells[4].innerText;
 });
 
+// Handle the form submission
+updateForm.addEventListener('submit', function(e) {
+  e.preventDefault();
 
-function updateRow(data, customerID){
-    let parsedData = JSON.parse(data);
-    
-    let table = document.getElementById("customer-data");
+  const id = selectCustomer.value;
+  const firstNameValue = inputFirst.value.trim();
+  const lastNameValue = inputLast.value.trim();
+  const phoneValue = inputPhone.value.trim();
+  const emailValue = inputEmail.value.trim();
 
-    for (let i = 0, row; row = table.rows[i]; i++) {
-       //iterate through rows
-       //rows would be accessed using the "row" variable assigned in the for loop
-       if (table.rows[i].getAttribute("data-value") == customerID) {
+// Condition check, validates all fields
+if (!id || !firstNameValue || !lastNameValue || !phoneValue || !emailValue) {
+    alert('Please select a customer and fill in all fields.');
+    return;
+  }
 
-            // Get the location of the row where we found the matching person ID
-            let updateRowIndex = table.getElementsByTagName("tr")[i];
-           
-            let td1 = updateRowIndex.getElementsByTagName("td")[1];
-            td1.innerHTML = parsedData[0].firstName; 
-            let td2 = updateRowIndex.getElementsByTagName("td")[2];
-            td2.innerHTML = parsedData[0].lastName;
-            let td3 = updateRowIndex.getElementsByTagName("td")[3];
-            td3.innerHTML = parsedData[0].email; 
-            let td4 = updateRowIndex.getElementsByTagName("td")[4];
-            td4.innerHTML = parsedData[0].phone; 
-       }
-       location.reload();
-    }
-};
+  // Prepare the payload to match what the server expects
+  const data = { id, firstNameValue, lastNameValue, phoneValue, emailValue };
+
+  // Send the PUT request
+  fetch('/put-customer', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+    .then(resp => {
+      if (resp.status === 204) {
+        // Update the table row in-place
+        const row = document.querySelector(`tr[data-value='${id}']`);
+        const cells = row.querySelectorAll('td');
+        cells[1].innerText = firstNameValue;
+        cells[2].innerText = lastNameValue;
+        cells[3].innerText = phoneValue;
+        cells[4].innerText = emailValue;
+
+        // Update the dropdown text
+        const option = selectCustomer.querySelector(`option[value='${id}']`);
+        option.text = `#${id} — ${firstNameValue} ${lastNameValue}`;
+
+        // Clear form
+        updateForm.reset();
+      } else {
+        alert('Update failed. Please try again.');
+      }
+    })
+    .catch(err => {
+      console.error('Error updating customer:', err);
+      alert('Error updating customer. Check console.');
+    });
+});

@@ -3,7 +3,7 @@
 <h1>Customers</h1>
 
 {{! READ table }}
-<table>
+<table id="customers-table">
     <thead>
         {{! For the table header row, we print the DB attribute names }}
         <tr>
@@ -28,9 +28,7 @@
 
  {{! DELETE form }}
             <td>
-            <button class="delete-customer" data-id="{{this.id}}">
-                Delete
-            </button>
+            <button class="delete-customer" data-id="{{this.id}}">Delete</button>
             </td>
         </tr>
         {{/each}}
@@ -83,3 +81,4 @@
 
 <script src = "/js/add_customer.js"></script>
 <script src = "/js/update_customer.js"></script>
+<script src = "/js/delete_customer.js"></script>

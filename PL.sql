@@ -41,8 +41,8 @@ VALUES('Dwayne', 'Johnson', '9497891234', 'WhatsCooking@mac.com', '32 Beverly Pa
 
 -- Insert data into Orders:
 INSERT INTO Orders (customerID, employeeID,locationID, address,dateOrdered, dateEstimateDelivery, dateDelivered, orderStatus,subtotal,tax,orderTotal)
-VALUES( (select customerID from Customers where firstName ='Leroy' and lastName='Jenkins'), (select employeeID from Employees where firstName ='Billy' and lastName='Mays'), (select locationID from Locations where locationName ='Bay Area'), '100 Elm Street, San Diego, CA 91942', '2025-04-20', '2025-04-25', NULL, 'Pending', 1200.00,  90.00,  1290.00),
-( (select customerID from Customers where firstName ='Luke' and lastName='Skywalker'), NULL, (select locationID from Locations where locationName ='Chicago'), '9463 Vineyard Ave, Napa, CA 94558','2025-04-16', '2025-04-25', '2025-04-25', 'Delivered', 3199.98,  275.98,  3475.96);
+VALUES( (select customerID from Customers where firstName ='Leroy' and lastName='Jenkins'), (select employeeID from Employees where firstName ='Billy' and lastName='Mays'), (select locationID from Locations where locationName ='Bay Area'), '100 Elm Street, San Diego, CA 91942', '2025-04-20', '2025-04-25', NULL, 'Pending', 1200.00,  120.00,  1320.00),
+( (select customerID from Customers where firstName ='Luke' and lastName='Skywalker'), NULL, (select locationID from Locations where locationName ='Chicago'), '9463 Vineyard Ave, Napa, CA 94558','2025-04-16', '2025-04-25', '2025-04-25', 'Delivered', 3199.98,  320.00,  3519.98);
 
 
 -- Insert data into ProductsOrdered: this table is an absolute nightmare to code, because you need customer, location, and date to increase odds the result is 1, and it still doesn't guarantee it
@@ -78,6 +78,8 @@ INSERT INTO ProductLocation (locationID, productID)
 VALUES((select locationID from Locations where locationName ='Chicago'), (select productID from Products where productName ='Sofa')),
 ( (select locationID from Locations where locationName ='Bay Area'), (select productID from Products where productName ='Office Chair')),
 ( (select locationID from Locations where locationName ='Chicago'), (select productID from Products where productName ='Office Chair')),
+( (select locationID from Locations where locationName ='Los Angeles'), (select productID from Products where productName ='Office Chair')),
+( (select locationID from Locations where locationName ='New York City'), (select productID from Products where productName ='Sofa')),
 ( (select locationID from Locations where locationName ='Bay Area'), (select productID from Products where productName ='Sofa'));
 END //
 

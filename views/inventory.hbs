@@ -7,34 +7,35 @@
     <thead>
         {{! For the table header row, we print the DB attribute names }}
         <tr>
-            {{#each inventory.[0]}}
-            <th>
-                {{@key}}
-            </th>
-            {{/each}}
-            <th></th>
+            <thead>
+                <tr>
+                    <th>Store</th>
+                    <th>Product</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
         </tr>
     </thead>
 
     <tbody>
         {{! For each row, print the id, fname, lname, homeworld and age }}
         {{#each inventory}}
-        <tr>
+        <tr id="inventory-{{this.id}}">
             <td>{{this.site}}</td>
             <td>{{this.product}}</td>
 
  {{! DELETE form }}
-            <form id='delete_person_form'>
-                <input type='hidden' name='delete_location_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_location_name' value='{{this.fname}} {{this.lname}}' />
-                <td>
-                    <button type='submit'>
+            <td>
+                    <button
+                        type="button"
+                        class="delete-inventory"
+                        data-id="{{this.id}}">
                         Delete
                     </button>
-                </td>
-            </form>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+            </table>
 
+<script src="/js/delete_inventory.js"></script>

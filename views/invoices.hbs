@@ -7,17 +7,17 @@
     <thead>
         {{! For the table header row, we print the DB attribute names }}
         <tr>
-            {{#each invoice.[0]}}
-            <th>
-                {{@key}}
-            </th>
-            {{/each}}
+            <th>ID</th>
+            <th>Item</th>
+            <th>Count</th>
+            <th>Price Per Count</th>
+            <th>Total Sale</th>
             <th></th>
         </tr>
     </thead>
 
     <tbody>
-        {{! For each row, print the id, fname, lname, homeworld and age }}
+        {{! For each row, print the id, fname, lname }}
         {{#each invoice}}
         <tr>
             <td>{{this.ID}}</td>
@@ -26,11 +26,10 @@
             <td>{{this.indprice}}</td>
             <td>{{this.totalproduct}}</td>
 
-
- {{! DELETE form }}
-            <form id='delete_person_form'>
-                <input type='hidden' name='delete_person_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
+            {{! DELETE form }}
+            <form id='delete_orderdetails_form' method='POST' action='/invoices/delete'>
+                <input type='hidden' name='delete_orderdetail_id' value='{{this.ID}}' />
+                <input type='hidden' name='delete_orderdetail_name' value='{{this.productName}}' />
                 <td>
                     <button type='submit'>
                         Delete
@@ -41,3 +40,23 @@
         {{/each}}
     </tbody>
 </table>
+
+{{! UPDATE form }}
+<h2>Update an order object</h2>
+<form class="cuForm" id="update_orderdetails_form" method='POST' action='/invoices/update'>
+    <label>Item ID:</label>
+    <select name="update_orderdetails_id" required>
+    <option disabled selected>Select…</option>
+    {{#each invoice}}
+        <option value="{{this.ID}}">#{{this.ID}} — {{this.productName}}</option>
+    {{/each}}
+    </select>
+    <label>Count:</label>
+    <input id="update_orderdetails_count" name="update_orderdetails_count" type="number" step="1" required>
+    <label>Price:</label>
+    <input id="update_orderdetails_count" name="update_orderdetails_price" type="number" step="0.01" required>
+    
+
+
+    <button type="submit">Update</button>
+</form>

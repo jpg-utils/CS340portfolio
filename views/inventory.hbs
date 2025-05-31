@@ -5,7 +5,7 @@
 {{! READ table }}
 <table>
     <thead>
-        {{! For the table header row, we print the DB attribute names }}
+        {{! For the table header row, print the keys as header }}
         <tr>
             {{#each inventory.[0]}}
             <th>
@@ -17,7 +17,7 @@
     </thead>
 
     <tbody>
-        {{! For each row, print the id, fname, lname, homeworld and age }}
+        {{! For each row, print the site and products available}}
         {{#each inventory}}
         <tr>
             <td>{{this.site}}</td>

@@ -36,10 +36,10 @@
 
  
             <td><a href="/invoices/{{this.id}}">View Order</a></td>
-{{! DELETE form }}            
-            <form id='delete_person_form'>
-                <input type='hidden' name='delete_person_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_person_name' value='{{this.fname}} {{this.lname}}' />
+
+            {{! DELETE form }}
+            <form id='delete_order_form' method='POST' action='/orders/delete'>
+                <input type='hidden' name='delete_order_id' value='{{this.id}}' />
                 <td>
                     <button type='submit'>
                         Delete

@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-const PORT = 5422;
+const PORT = 5420;
 
 // Database for CRUD actions on the data
 const db = require('./database/db-connector.js');
@@ -119,7 +119,6 @@ app.get('/employees', async (req, res) => {
         e.employeeRole AS role,
         e.ordersActiveCount AS active,
         e.phone,
-        e.locationID,
         l.locationName AS branch
       FROM Employees e
       LEFT JOIN Locations l ON e.locationID = l.locationID

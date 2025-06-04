@@ -35,6 +35,7 @@
     </tbody>
 </table>
 
+<section>
 {{! CREATE form }}
 <h2>New Customer</h2>
 <form class='cuForm' id='create_customer_form' method='POST' action='/add-customer'>
@@ -51,7 +52,10 @@
         <input type='email' name='create_customer_email' id='create_customer_email' required/>
     <input type='submit' value="Become a consumer today!" />
 </form>
+</section><br>
 
+
+<section>
 {{! UPDATE form }}
 <h2>Update a Customer</h2>
 <form class="cuForm" id="update_customer_form">
@@ -78,6 +82,7 @@
 
     <button type="submit">Update</button>
 </form>
+</section>
 
 <script src = "/js/add_customer.js"></script>
 <script src = "/js/update_customer.js"></script>

@@ -1,5 +1,6 @@
 h1, h2 { margin-left: 16px;}
 table {border-collapse: collapse;margin-left: auto; margin-right: auto;}
+table::after{content:  "\a"; white-space: pre;}
 th, td {
     border: 1px solid #ddd;
     padding: 12px;
@@ -13,3 +14,14 @@ nav {background-color: #cecece;padding: 16px;}
 a {margin-left: 16px;}
 p {text-align: center; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;}
 .homepageDescription {margin-left: 32px;}
+
+section{border: 2px solid #555;}
+section::after{content:  "\a"; white-space: pre;}
+label::before{content:  "\a"; white-space: pre;}
+
+input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+input[type=text]:focus{ border: 1px solid #555;}

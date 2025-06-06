@@ -108,7 +108,7 @@ app.get('/locations', async function (req, res) {
 });
 
 
-//retrieve a list of employees- requires join to get Branch worked
+//retrieve a list of employees- requires join to get Branch worked. AI used (How to write a GET employees route that matches locations, debugging)
 app.get('/employees', async (req, res) => {
   try {
     const [employees] = await db.query(`
@@ -138,15 +138,14 @@ app.get('/employees', async (req, res) => {
   }
 });
 
-//retrieve a list of orders- requires joins
-// ─── app.js ───
+// retrieve a list of orders- requires join to get Branch worked. AI used (How to write a GET orders route that joins Orders, Customers, and Employees, debugging)
 app.get('/orders', async (req, res) => {
   try {
     const query1 = `SELECT
-        o.orderID   AS id,
+        o.orderID AS id,
         c.firstName AS customerFirst,
-        c.lastName  AS customerLast,
-        e.lastName  AS employee,
+        c.lastName AS customerLast,
+        e.lastName AS employee,
         DATE_FORMAT(o.dateEstimateDelivery, '%m/%e/%y') AS estimate,
         o.orderStatus AS status,
         o.subtotal,
@@ -303,9 +302,9 @@ app.get('/inventory', async (req, res) => {
   try {
     const query1 = `
       SELECT
-        productLocationID      AS id,
+        productLocationID AS id,
         Locations.locationName AS site,
-        Products.productName   AS product
+        Products.productName AS product
       FROM ProductLocation
       JOIN Products  ON ProductLocation.productID  = Products.productID
       JOIN Locations ON ProductLocation.locationID = Locations.locationID
@@ -323,11 +322,11 @@ app.get('/inventory/:id', async (req, res) => {
   try {
     const query1 = `
       SELECT
-        productLocationID      AS id,
+        productLocationID AS id,
         Locations.locationName AS site,
-        Products.productName   AS product
+        Products.productName AS product
       FROM ProductLocation
-      JOIN Products  ON ProductLocation.productID  = Products.productID
+      JOIN Products  ON ProductLocation.productID = Products.productID
       JOIN Locations ON ProductLocation.locationID = Locations.locationID
       WHERE ProductLocation.locationID = ?
     `;
@@ -339,31 +338,31 @@ app.get('/inventory/:id', async (req, res) => {
   }
 });
 
-
+// PURCHASE page. Loads customers, employees and products
 app.get('/purchase', async (req, res) => {
   try {
     const [customers] = await db.query(`
       SELECT
         customerID AS id,
         firstName  AS first,
-        lastName   AS last
+        lastName AS last
       FROM Customers;
     `);
 
     const [employees] = await db.query(`
       SELECT
         employeeID AS id,
-        firstName  AS first,
-        lastName   AS last
+        firstName AS first,
+        lastName AS last
       FROM Employees;
     `);
 
     const [products] = await db.query(`
       SELECT
-        productID   AS id,
+        productID AS id,
         productName AS name,
         productType AS type,
-        unitPrice   AS price
+        unitPrice AS price
       FROM Products;
     `);
 
@@ -397,71 +396,47 @@ app.get('/demo-delete', async (req, res) => {
   }
 });
 
-// CREATE Customer
+// CREATE Customer. Recovered from original version.
 app.post('/add-customer', async (req, res) => {
-  console.log('POST /add-customer body:', req.body);
   try {
-    const { first, last, phone, email } = req.body;
+    const { create_customer_fname, create_customer_lname, create_customer_phone, create_customer_email } = req.body;
     await db.query(
-      `INSERT INTO Customers (firstName, lastName, phone, email)
-       VALUES (?, ?, ?, ?)`,
-      [first, last, phone, email]
+      `CALL CreateCustomer(?, ?, ?, ?);`,
+      [create_customer_fname, create_customer_lname, create_customer_phone, create_customer_email]
     );
-    const [rows] = await db.query(
-      `SELECT customerID AS id, firstName AS first, lastName AS last, phone, email
-       FROM Customers ORDER BY customerID`
-    );
-    return res.json(rows);
+    return res.sendStatus(201);
   } catch (err) {
-    console.error('error in POST /add-customer:', err);
-    return res.status(500).send(`DB error: ${err.message}`);
+    console.error(err);
+    return res.status(500).send('CreateCustomer failed');
   }
 });
 
-// UPDATE Customer
-app.put('/put-customer', async (req, res) => {
+// UPDATE Customer. Recovered from original version.
+app.put('/customers/update-customer', async (req, res) => {
   try {
-    const { id, firstNameValue, lastNameValue, phoneValue, emailValue } = req.body;
+    const id = parseInt(req.params.id);
+    const { firstName, lastName, phone, email } = req.body;
     await db.query(
-      `UPDATE Customers
-         SET firstName = ?,
-             lastName  = ?,
-             phone     = ?,
-             email     = ?
-       WHERE customerID = ?`,
-      [firstNameValue, lastNameValue, phoneValue, emailValue, id]
+      `CALL UpdateCustomer(?, ?, ?, ?, ?);`,
+      [id, firstName, lastName, phone, email]
     );
     return res.sendStatus(204);
   } catch (err) {
-    console.error('error in PUT /put-customer:', err);
-    return res.sendStatus(400);
+    console.error(err);
+    return res.status(500).send('UpdateCustomer failed');
   }
 });
 
-// DELETE Customer
-app.delete('/delete-customer', async (req, res) => {
-    const customerID = parseInt(req.body.id);
-    console.log("DELETE route hit with body ID:", customerID);
-
-    if (!customerID) {
-        return res.status(400).send("Missing or invalid customer ID.");
-    }
-
-    try {
-        const [result] = await db.query(
-            `DELETE FROM Customers WHERE customerID = ?`,
-            [customerID]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).send("Customer not found.");
-        }
-
-        return res.sendStatus(204);
-    } catch (error) {
-        console.error("Error deleting customer:", error);
-        return res.status(500).send("Failed to delete customer.");
-    }
+// DELETE Customer. Recovered from original version.
+app.delete('/customers/delete-customer', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    await db.query(`CALL DeleteCustomer(?);`, [id]);
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send('DeleteCustomer failed');
+  }
 });
 
 // CREATE Product
@@ -478,7 +453,7 @@ app.post('/add-product', async (req, res) => {
       `SELECT productID AS id,
               productName AS name,
               productType AS type,
-              unitPrice   AS price
+              unitPrice AS price
        FROM Products
        ORDER BY productID`
     );
@@ -497,7 +472,7 @@ app.put('/put-product', async (req, res) => {
       `UPDATE Products
          SET productName = ?,
              productType = ?,
-             unitPrice   = ?
+             unitPrice = ?
        WHERE productID = ?`,
       [nameValue, typeValue, priceValue, id]
     );
@@ -548,7 +523,7 @@ app.post('/add-location', async (req, res) => {
         locationID AS id,
         locationName AS branch,
         locationAddress AS address,
-        locationCity    AS city,
+        locationCity AS city,
         locationStateAbbr AS state,
         phone
       FROM Locations
@@ -567,10 +542,10 @@ app.put('/put-location', async (req, res) => {
     const { id, address, city, state, phone } = req.body;
     await db.query(
       `UPDATE Locations
-         SET locationAddress    = ?,
-             locationCity       = ?,
-             locationStateAbbr  = ?,
-             phone              = ?
+         SET locationAddress = ?,
+             locationCity = ?,
+             locationStateAbbr = ?,
+             phone = ?
        WHERE locationID = ?`,
       [address, city, state, phone, id]
     );
@@ -598,7 +573,7 @@ app.delete('/delete-location', async (req, res) => {
   }
 });
 
-// CREATE Employee
+// CREATE Employee. AI used (Help with logic with joining locations for branch info)
 app.post('/add-employee', async (req, res) => {
   const { first, last, role, active, phone, locID } = req.body;
   try {
@@ -718,7 +693,7 @@ app.delete('/delete-order', async (req, res) => {
   }
 });
 
-// UPDATE Order Detail
+// UPDATE Order Detail. AI used (Both adapted and copied. While still being able to update ProductsOrdered, how to implement put in mysql that updates subtotal, tax, total in orders)
 app.put('/put-orderdetail', async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -727,9 +702,9 @@ app.put('/put-orderdetail', async (req, res) => {
 
     await conn.query(
       `UPDATE ProductsOrdered
-         SET quantity           = ?,
-             productPrice       = ?,
-             totalProductPrice  = ? * ?
+         SET quantity = ?,
+             productPrice = ?,
+             totalProductPrice = ? * ?
        WHERE orderItemID = ?`,
       [quantityVal, unitPriceVal, quantityVal, unitPriceVal, id]
     );
@@ -761,8 +736,8 @@ app.put('/put-orderdetail', async (req, res) => {
 
     await conn.query(
       `UPDATE Orders
-         SET subtotal   = ?,
-             tax        = ?,
+         SET subtotal = ?,
+             tax = ?,
              orderTotal = ?
        WHERE orderID = ?`,
       [
@@ -790,7 +765,7 @@ app.put('/put-orderdetail', async (req, res) => {
   }
 });
 
-// DELETE Order Detail
+// DELETE Order Detail. AI used (Debugging)
 app.delete('/delete-orderdetail', async (req, res) => {
   const orderItemID = parseInt(req.body.id);
   if (!orderItemID) {
@@ -812,7 +787,7 @@ app.delete('/delete-orderdetail', async (req, res) => {
   }
 });
 
-// DELETE Inventory
+// DELETE Inventory. AI used (Adapted. How to write Express.js delete route, for M:N join table)
 app.delete('/delete-inventory', async (req, res) => {
   const inventoryID = parseInt(req.body.id);
   console.log("DELETE /delete-inventory with ID:", inventoryID);
@@ -839,7 +814,7 @@ app.delete('/delete-inventory', async (req, res) => {
 });
 
 
-// CREATE ORDER
+// CREATE ORDER. AI used (Adapted. How to write mysql that inserts into Orders & ProductsOrdered, recalculate subtotal, tax, and orderTotal)
 app.post('/add-order', async (req, res) => {
   const { customerID, employeeID, productID, quantity } = req.body;
   const conn = await db.getConnection();
@@ -871,15 +846,15 @@ app.post('/add-order', async (req, res) => {
       [orderID, productID, quantity, unitPrice, lineTotal]
     );
 
-    // Recompute sums at 10% tax
+    // Recompute sums at 10% tax. Based on https://stackoverflow.com/questions/44004418/node-js-async-await-using-with-mysql & AI Prompts Used (How to calculate and round tax to 2 decimals, debugging)
     const subtotal = lineTotal;
-    const tax      = +(subtotal * 0.10).toFixed(2);
-    const total    = +(subtotal + tax).toFixed(2);
+    const tax = +(subtotal * 0.10).toFixed(2);
+    const total = +(subtotal + tax).toFixed(2);
     await conn.query(
       `UPDATE Orders
-         SET subtotal  = ?, 
-             tax       = ?, 
-             orderTotal= ?
+        SET subtotal = ?, 
+          tax = ?, 
+          orderTotal= ?
        WHERE orderID = ?`,
       [subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2), orderID]
     );

@@ -1,27 +1,27 @@
 /* ===== Variables ===== */
 :root {
-  --black:     #333333;
-  --blue:      #85AEB4;
-  --beige:     #F4E1D2;
-  --grey:      #F2D8C980;
+  --black:#333333;
+  --blue:#85AEB4;
+  --beige:#F4E1D2;
+  --grey: #F2D8C980;
   --beigeText: #f4e1d200;
 }
 
     /*  ----- Viewport ----- elements inherited by all remaining elements ----- */
 body {
-    background-color:       var(--beige);
-    background-size:        cover;
-    background-attachment:  fixed;
-    background-position:    center;
-    background-repeat:      no-repeat;
-    color:                  var(--black);
-    font-family:            'Open Sans', sans-serif;
-    margin:                 0;
-    padding-left:           10%;
-    padding-right:          10%;
-    max-width:              80%;
-    line-height:            1.5;
-    flex-direction:         column;
+    background-color: var(--beige);
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--black);
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding-left: 10%;
+    padding-right: 10%;
+    max-width: 80%;
+    line-height: 1.5;
+    flex-direction: column;
 }
 
 /*  ----- Navigation ----- Override text links for navigation only.  */
@@ -52,12 +52,12 @@ nav a:hover {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family:   'Anton SC', sans-serif;
-  line-height:   1.5;
+  font-family: 'Anton SC', sans-serif;
+  line-height: 1.5;
   border-bottom: 2px solid var(--blue);
 }
 h1 {
-  font-size:   2.4em;
+  font-size: 2.4em;
   margin-left: 16px;
 }
 
@@ -105,30 +105,30 @@ p {
 }
 
 table {
-  width:                  80%;
-  border:                 2px solid var(--blue);
-  border-collapse:        collapse;
-  margin-left:            auto;
-  margin-right:           auto;
+  width: 80%;
+  border: 2px solid var(--blue);
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 tr {
-  color:          var(--blue);
-  border:         1px solid var(--blue);
+  color: var(--blue);
+  border: 1px solid var(--blue);
 }
 
 th {
-  padding:           10px;
-  text-align:        left;
-  color:             var(--black);
-  background-color:  var(--blue);
-  border:            1px solid var(--black);
+  padding: 10px;
+  text-align: left;
+  color: var(--black);
+  background-color: var(--blue);
+  border: 1px solid var(--black);
 }
 
 td {
   background-color: var(--grey);
-  color:            var(--black);
-  border:           1px solid var(--blue);
+  color: var(--black);
+  border: 1px solid var(--blue);
 }
 
 label {
@@ -136,35 +136,35 @@ label {
 }
 
 button {
-  border:          2px solid var(--blue);
+  border: 2px solid var(--blue);
   background-color: var(--grey);
-  color:           var(--black);
-  font-weight:     bold;
-  font-family:     'Open Sans', sans-serif;
-  font-size:       18px;
-  cursor:          pointer;
+  color: var(--black);
+  font-weight: bold;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 18px;
+  cursor: pointer;
 }
 button:hover {
-  color:            var(--beige);
-  border:           2px solid var(--black);
+  color: var(--beige);
+  border: 2px solid var(--black);
   background-color: var(--blue);
 }
 
 input, textarea {
   background-color: var(--beigeText);
-  color:            var(--black);
-  border:           2px solid var(--black);
+  color: var(--black);
+  border: 2px solid var(--black);
 }
 
 textarea {
-  width:  50%;
+  width: 50%;
   height: 150px;
 }
 
 select {
   background-color: var(--grey);
-  color:            var(--black);
-  border:           2px solid var(--black);
+  color: var(--black);
+  border: 2px solid var(--black);
 }
 
 .cuForm input[type="submit"] {
@@ -176,20 +176,20 @@ select {
     font-size: 18px;
 }
 .cuForm input[type="submit"]:hover {
-  color:            var(--beige);
-  border:           2px solid var(--black);
+  color: var(--beige);
+  border: 2px solid var(--black);
   background-color: var(--blue);
 }
 
 .home-hero {
-  display:      flex;
-  align-items:  flex-start;
+  display: flex;
+  align-items: flex-start;
 }
 
 .home-hero img {
-  max-width:      40%;
-  height:         auto;
-  margin-right:   1.5rem;
+  max-width: 40%;
+  height: auto;
+  margin-right: 1.5rem;
 }
 .home-hero .homepageDescription {
   flex: 1;

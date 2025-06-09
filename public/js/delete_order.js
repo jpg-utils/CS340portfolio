@@ -1,3 +1,5 @@
+// {{!-- Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, general debugging 5/27}}
+
 // Wait for the DOM to be fully loaded before running our code
 window.addEventListener('DOMContentLoaded', () => {
   // Attach a click event listener to all delete-order buttons

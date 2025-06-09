@@ -1,4 +1,4 @@
--- Group 8 Sean Bleyl & Joshua Griep
+--Joshua Griep, Sean Bleyl, CS340, adopted from the react portion the course material--
 -- SELECT, INSERT, UPDATE and DELETE queries for each table
 
 

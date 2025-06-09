@@ -9,12 +9,12 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     // Retrieve and trim the values from the form fields
-    const first  = document.getElementById('create_employee_fname').value.trim();
-    const last   = document.getElementById('create_employee_lname').value.trim();
-    const role   = document.getElementById('create_employee_role').value;
+    const first = document.getElementById('create_employee_fname').value.trim();
+    const last = document.getElementById('create_employee_lname').value.trim();
+    const role = document.getElementById('create_employee_role').value;
     const active = document.getElementById('create_employee_active').value;
-    const phone  = document.getElementById('create_employee_phone').value.trim();
-    const locID  = document.getElementById('create_employee_site').value;
+    const phone = document.getElementById('create_employee_phone').value.trim();
+    const locID = document.getElementById('create_employee_site').value;
 
     // Validate that all form fields have been filled out
     if (!first || !last || !role || active === '' || !phone || !locID) {

@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-const PORT = 5420;
+const PORT = 5427;
 
 // Database for CRUD actions on the data
 const db = require('./database/db-connector.js');
@@ -108,7 +108,7 @@ app.get('/locations', async function (req, res) {
 });
 
 
-//retrieve a list of employees- requires join to get Branch worked. AI used (How to write a GET employees route that matches locations, debugging)
+//retrieve a list of employees- requires join to get Branch worked. AI used. ChatGPT (Adapted. How to write a GET employees route that matches locations, debugging) 5/27
 app.get('/employees', async (req, res) => {
   try {
     const [employees] = await db.query(`
@@ -138,7 +138,7 @@ app.get('/employees', async (req, res) => {
   }
 });
 
-// retrieve a list of orders- requires join to get Branch worked. AI used (How to write a GET orders route that joins Orders, Customers, and Employees, debugging)
+// retrieve a list of orders- requires join to get Branch worked. ChatGPT (How to write a GET orders route that joins Orders, Customers, and Employees, debugging)
 app.get('/orders', async (req, res) => {
   try {
     const query1 = `SELECT
@@ -398,44 +398,51 @@ app.get('/demo-delete', async (req, res) => {
 
 // CREATE Customer. Recovered from original version.
 app.post('/add-customer', async (req, res) => {
+  const { first, last, phone, email } = req.body;
   try {
-    const { create_customer_fname, create_customer_lname, create_customer_phone, create_customer_email } = req.body;
     await db.query(
-      `CALL CreateCustomer(?, ?, ?, ?);`,
-      [create_customer_fname, create_customer_lname, create_customer_phone, create_customer_email]
+      `CALL CreateCustomer(?, ?, ?, ?)`,
+      [first, last, phone, email]
     );
-    return res.sendStatus(201);
+
+    const [newCustomer] = await db.query(
+      `SELECT customerID AS id, firstName AS first, lastName AS last, phone, email
+       FROM Customers
+       ORDER BY customerID DESC
+       LIMIT 1`
+    );
+
+    res.status(201).json([newCustomer[0]]);
   } catch (err) {
-    console.error(err);
-    return res.status(500).send('CreateCustomer failed');
+    console.error('Error in CreateCustomer:', err);
+    res.status(500).send('CreateCustomer failed');
   }
 });
 
 // UPDATE Customer. Recovered from original version.
-app.put('/customers/update-customer', async (req, res) => {
+app.put('/put-customer', async (req, res) => {
+  const { id, firstName, lastName, phone, email } = req.body;
   try {
-    const id = parseInt(req.params.id);
-    const { firstName, lastName, phone, email } = req.body;
     await db.query(
-      `CALL UpdateCustomer(?, ?, ?, ?, ?);`,
+      `CALL UpdateCustomer(?, ?, ?, ?, ?)`,
       [id, firstName, lastName, phone, email]
     );
-    return res.sendStatus(204);
+    res.sendStatus(204);
   } catch (err) {
-    console.error(err);
-    return res.status(500).send('UpdateCustomer failed');
+    console.error('Error in UpdateCustomer:', err);
+    res.status(500).send('UpdateCustomer failed');
   }
 });
 
 // DELETE Customer. Recovered from original version.
-app.delete('/customers/delete-customer', async (req, res) => {
+app.delete('/delete-customer', async (req, res) => {
+  const { id } = req.body;
   try {
-    const id = parseInt(req.params.id);
-    await db.query(`CALL DeleteCustomer(?);`, [id]);
-    return res.sendStatus(204);
+    await db.query("CALL DeleteCustomer(?);", [id]);
+    res.sendStatus(204);
   } catch (err) {
     console.error(err);
-    return res.status(500).send('DeleteCustomer failed');
+    res.status(500).send('DeleteCustomer failed');
   }
 });
 
@@ -573,7 +580,7 @@ app.delete('/delete-location', async (req, res) => {
   }
 });
 
-// CREATE Employee. AI used (Help with logic with joining locations for branch info)
+// CREATE Employee. AI used. ChatGPT (Adapted. Help with logic with joining locations for branch info) 5/27
 app.post('/add-employee', async (req, res) => {
   const { first, last, role, active, phone, locID } = req.body;
   try {
@@ -693,7 +700,7 @@ app.delete('/delete-order', async (req, res) => {
   }
 });
 
-// UPDATE Order Detail. AI used (Both adapted and copied. While still being able to update ProductsOrdered, how to implement put in mysql that updates subtotal, tax, total in orders)
+// UPDATE Order Detail. AI used. ChatGPT (Both adapted and copied. While still being able to update ProductsOrdered, how to implement put in mysql that updates subtotal, tax, total in orders) 5/27
 app.put('/put-orderdetail', async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -765,7 +772,7 @@ app.put('/put-orderdetail', async (req, res) => {
   }
 });
 
-// DELETE Order Detail. AI used (Debugging)
+// DELETE Order Detail. AI used. ChatGPT. Based (Debugging) 5/27
 app.delete('/delete-orderdetail', async (req, res) => {
   const orderItemID = parseInt(req.body.id);
   if (!orderItemID) {
@@ -787,7 +794,7 @@ app.delete('/delete-orderdetail', async (req, res) => {
   }
 });
 
-// DELETE Inventory. AI used (Adapted. How to write Express.js delete route, for M:N join table)
+// DELETE Inventory. AI used. ChatGPT. (Adapted. How to write Express.js delete route, for M:N join table) 5/27
 app.delete('/delete-inventory', async (req, res) => {
   const inventoryID = parseInt(req.body.id);
   console.log("DELETE /delete-inventory with ID:", inventoryID);
@@ -814,7 +821,7 @@ app.delete('/delete-inventory', async (req, res) => {
 });
 
 
-// CREATE ORDER. AI used (Adapted. How to write mysql that inserts into Orders & ProductsOrdered, recalculate subtotal, tax, and orderTotal)
+// CREATE ORDER. AI used. ChatGPT (Adapted. How to write mysql that inserts into Orders & ProductsOrdered, recalculate subtotal, tax, and orderTotal) 5/27
 app.post('/add-order', async (req, res) => {
   const { customerID, employeeID, productID, quantity } = req.body;
   const conn = await db.getConnection();

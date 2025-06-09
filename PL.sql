@@ -1,4 +1,4 @@
--- Group 8 Sean Bleyl & Joshua Griep
+--Joshua Griep, Sam Bleyl, CS340, adopted from the react portion the course material--
 
 DELIMITER //
 

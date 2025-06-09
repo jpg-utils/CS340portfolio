@@ -1,3 +1,5 @@
+// {{!-- Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, general debugging, handling M:N form fields. Adapted. 5/27}}
+
 // Get the objects we need to modify
 const updateForm = document.getElementById('update_orderdetail_form');
 const selectDetail = updateForm.querySelector('select[name="itemId"]');

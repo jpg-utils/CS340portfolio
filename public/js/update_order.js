@@ -1,3 +1,5 @@
+// {{!-- Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, general debugging 5/27}}
+
 // Get the objects we need to modify
 const updateForm = document.getElementById('update_order_form');
 const selOrd = updateForm.querySelector('#update_order_id');

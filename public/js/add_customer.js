@@ -1,3 +1,5 @@
+// {{!--Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, General Debugging, generating basic JS pattern for collecting form fields and posting. Adapted. 5/27}}
+
 // Wait for the DOM to be fully loaded before running our code
 window.addEventListener('DOMContentLoaded', () => {
   // Get the form element we need to modify
@@ -10,7 +12,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Retrieve and trim the values from the form fields
     const first = document.getElementById('create_customer_fname').value.trim();
-    const last  = document.getElementById('create_customer_lname').value.trim();
+    const last = document.getElementById('create_customer_lname').value.trim();
     const phone = document.getElementById('create_customer_phone').value.trim();
     const email = document.getElementById('create_customer_email').value.trim();
 
@@ -31,7 +33,7 @@ window.addEventListener('DOMContentLoaded', () => {
     xhttp.onreadystatechange = () => {
       // Check if the request is complete
       if (xhttp.readyState === 4) {
-        if (xhttp.status === 200) {
+        if (xhttp.status === 201) {
           // On success: Add the new customer to the table and reset the form
           addRowToTable(xhttp.responseText);
           form.reset();

@@ -1,3 +1,4 @@
+// {{!-- Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, general debugging, generating basic JS pattern for collecting update-form fields and sending PUT requests. Adapted. 5/27}}
 
 // Get the objects we need to modify
 const updateForm = document.getElementById('update_customer_form');

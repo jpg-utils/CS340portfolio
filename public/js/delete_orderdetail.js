@@ -1,3 +1,5 @@
+// {{!-- Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, general debugging, handling M:N records for DELETE. Adapted. 5/27}}
+
 // Wait for the DOM to be fully loaded before running our code
 window.addEventListener('DOMContentLoaded', () => {
     // Select all delete buttons

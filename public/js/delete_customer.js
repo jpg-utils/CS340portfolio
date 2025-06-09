@@ -1,3 +1,5 @@
+// Joshua Griep, Sean Bleyl, CS340, assistance of AI tools used. ChatGPT, general debugging, generating basic JS pattern for handling delete-button clicks and sending DELETE requests. Adapted. 5/27}}
+
 // Wait for the DOM to be fully loaded before running our code
 window.addEventListener('DOMContentLoaded', () => {
   // Attach a click event listener to the table body to handle delete button clicks
